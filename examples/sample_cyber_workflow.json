@@ -1,0 +1,16 @@
+{
+  "session_id": "acme-prod-cyber-remediation",
+  "domain": "cyber",
+  "objective": "Remediate CWE-78 shell command injection in diagnostics service using custom model",
+  "workspace_files": {
+    "service.py": "import subprocess\ndef run_check(host: str) -> int:\n    return subprocess.call(f'ping -c 1 {host}', shell=True)\n"
+  },
+  "task_payload": {
+    "target_file": "service.py",
+    "old_str": "    return subprocess.call(f'ping -c 1 {host}', shell=True)",
+    "new_str": "    return subprocess.call(['ping', '-c', '1', host], shell=False)",
+    "poc_still_crashes": false,
+    "regression_tests_passed": 18,
+    "regression_tests_total": 18
+  }
+}

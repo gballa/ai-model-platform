@@ -1,0 +1,30 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Python caches & packaging artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS & editor files
+.DS_Store
+*.swp
+*.swo
+
+# Runtime outputs, local databases & secrets
+/artifacts/
+*.db
+*.sqlite
+*.sqlite3
+*.safetensors
+.env
+.env.*

@@ -1,0 +1,31 @@
+# Swarm Status Board (`STATUS.md`)
+
+- **Feature Slug**: `ultimate-local-model-creator`
+- **Current Phase**: Phase 4 Complete — `COMPLETED / PASS` (Implementation, Security Remediation, 49/49 Test Verification, and Documentation Synchronization Complete)
+- **Active Agents**: `docs-sync` (Wave 4 Documentation Synchronization Complete)
+- **Artifacts**:
+  - [00-research.md](00-research.md)
+  - [01-prd.md](01-prd.md)
+  - [02-adr.md](02-adr.md)
+  - [03-plan.md](03-plan.md)
+  - [04-test-report.md](04-test-report.md)
+  - [05-security-audit.md](05-security-audit.md)
+- **Delivered Capabilities**:
+  - [`src/platform_core/layer3_evolution/corpus_harvester.py`](../../../src/platform_core/layer3_evolution/corpus_harvester.py) (`CorpusHarvesterPipeline`, `PDFBookExtractor`, `RateLimitedWebHarvester`, `TeacherDistiller`, `PromptInjectionSanitizer`, `DomainChunker`, `RateLimitError`)
+  - [`src/platform_core/layer1_intelligence/scratch_trainer.py`](../../../src/platform_core/layer1_intelligence/scratch_trainer.py) (`CreationStrategyAdvisor`, `ModelCreationPath`, `BytePairTokenizer`, `ScratchSLMConfig`, `CompactTransformerSLMTrainer`, `ScratchSLMArtifact`)
+  - [`src/platform_core/layer2_execution/agy_sdk_bridge.py`](../../../src/platform_core/layer2_execution/agy_sdk_bridge.py) (`AgySkillDiscovery`, `AgyStdioMCPBridge`, `AgyLocalOrchestrator`, `AgyLocalAgentSpec`, `AgyExecutionResult`)
+  - [`src/platform_core/deploy_security/governance.py`](../../../src/platform_core/deploy_security/governance.py) (`SafetensorsValidator` `<Q` JSON-header false-positive guard paired with `scratch_trainer.py` `header_pad` safeguard)
+  - [`src/platform_core/cli.py`](../../../src/platform_core/cli.py) (`harvest-corpus`, `recommend-strategy`, `train-scratch-slm`, `run-agy-local`, `mcp-stdio-bridge`) & [`pyproject.toml`](../../../pyproject.toml) (`[agy]` optional extra; `dependencies = []` preserved)
+  - 5 Workspace Skills under [`.agents/skills/`](../../skills/): `corpus-harvester`, `local-model-advisor`, `scratch-slm-trainer`, `pretrained-qlora-finetuner`, `agy-local-agent-runner`
+  - Architecture Decision Record: [`ADR-0006`](../../../docs/architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md)
+- **Related Repository Governance & Docs**:
+  - [AGENTS.md](../../../AGENTS.md)
+  - [pyproject.toml](../../../pyproject.toml)
+  - [DOCUMENTATION_INDEX.md](../../../docs/DOCUMENTATION_INDEX.md)
+  - [DOCUMENTATION_COVERAGE.md](../../../docs/DOCUMENTATION_COVERAGE.md)
+  - [.agents/README.md](../../README.md)
+- **Verification Status**:
+  - `PYTHONPATH=src .venv/bin/python -W error -m unittest discover -s tests -v` -> **49/49 tests passing** (`0` failures, `0` errors, `0` skipped, `0` warnings).
+  - Security Audit (`05-security-audit.md`): **VERDICT: PASS** (SEC-01..SEC-07 and QUAL-01 verified fixed).
+  - Test Report (`04-test-report.md`): **VERDICT: PASS** (`test_corpus_and_scratch_trainer.py` + `test_agy_sdk_and_skills.py` + full suite).
+- **Blockers**: None

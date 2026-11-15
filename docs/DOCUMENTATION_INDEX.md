@@ -1,0 +1,93 @@
+# Living Documentation Index & Subsystem Registry
+
+**Last Verified:** 2026-11-15  
+**Governance Policy:** [docs/DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) & [docs/AI_DOCUMENTATION_POLICY.md](AI_DOCUMENTATION_POLICY.md)
+
+This file is the authoritative inventory of all documentation across `platform-core`. Update this index whenever documentation files are added, moved, or retired.
+
+---
+
+## 1. Subsystem & Component Documentation Registry
+
+| Subsystem / Component | Description | Documentation Entry Point | Related Architecture Docs | Relevant How-To Guides | Current Status | Last Verified |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Root Project & Overview** | End-to-end platform introduction, quickstart, and domain summary | [`/README.md`](../README.md), [`docs/overview/project-overview.md`](overview/project-overview.md) | [System Architecture](architecture/system-architecture.md) | [Getting Started](development/getting-started.md) | Complete | 2026-11-15 |
+| **Unified CLI (`platform_core.cli`)** | `platform-cli` 18 subcommands (`evaluate-blueprint`, `train-model`, `create-custom-model`, `run-workflow`, `run-custom-model`, `inspect-data`, `hardware-check`, `download-model`, `sync-vuln-db`, `scan-forensics`, `audit-vulns`, `analyze-image`, `run-benchmarks`, `harvest-corpus`, `recommend-strategy`, `train-scratch-slm`, `run-agy-local`, `mcp-stdio-bridge`) | [`docs/modules/cli.md`](modules/cli.md), [`src/platform_core/README.md`](../src/platform_core/README.md) | [Component Architecture](architecture/component-architecture.md), [ADR-0006](architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md) | [Getting Started](development/getting-started.md), [Custom Model Guide](CUSTOM_MODEL_GUIDE.md) | Complete | 2026-11-15 |
+| **Layer 1: Model Registry & Hardware Planner (`models.py`)** | 4-Pool `ModelRegistry`, `HardwareProfile`, `LocalHardwareDetector`, `ModelSpec`, `ThinkingMode`, and `HardwareFeasibilityPlanner` | [`docs/modules/layer1-intelligence.md`](modules/layer1-intelligence.md), [`src/platform_core/layer1_intelligence/README.md`](../src/platform_core/layer1_intelligence/README.md) | [System Architecture](architecture/system-architecture.md), [ADR-0001](architecture/decisions/ADR-0001-three-layer-hybrid-architecture-and-post-training.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [Configuration Reference](development/configuration.md) | Complete | 2026-11-15 |
+| **Layer 1: Adaptive Router & `TTS@N` Pruner (`router.py`)** | `AdaptiveModelRouter` (including `forensics` and `vuln_intel`), entropy-bounded thinking caps (`0`, `512..1024`, `2048`), and `BestOfNVerifierPruner` | [`docs/modules/layer1-intelligence.md`](modules/layer1-intelligence.md) | [Component Architecture](architecture/component-architecture.md) | [Playbook B: AI Agent & Pipeline Development](guides/README.md#playbook-b-ai-agent-recopilot-prompt--pipeline-development) | Complete | 2026-11-15 |
+| **Layer 1: Inference Client, Serving & Radix Cache (`inference.py`, `serving.py`)** | `OpenAICompatibleClient`, `MLXLocalBackend`, `MemoryResidencyGuard`, `ModelDownloadManager`, `ServingEndpointConfig` (`SGLang`, `vLLM`, `mlx_lm`, `llama_cpp`), `ServingHealthChecker`, and `RadixPrefixCacheSimulator` | [`docs/modules/layer1-intelligence.md`](modules/layer1-intelligence.md) | [Integrations](architecture/integrations.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [Deployment Guide](deployment/README.md) | Complete | 2026-11-15 |
+| **Layer 1: 5-Stage Post-Training & Custom Models (`training.py`)** | `CustomModelPipeline`, `TrainingExecutionMode` (`spec_only`, `mlx_qlora`, `torch_trl`), `MLXQLoRATrainer`, `TorchTRLSpecAndRunner`, `SWECyberRewardOracle`, `BinRevDecompileRewardOracle`, `GRPOTrainer`, `MOPDDistiller`, `DPOTrainer`, `DistributedTrainingSpecBuilder` | [`docs/workflows/model-post-training-pipeline.md`](workflows/model-post-training-pipeline.md), [`docs/CUSTOM_MODEL_GUIDE.md`](CUSTOM_MODEL_GUIDE.md) | [Data Flow](architecture/data-flow.md), [ADR-0001](architecture/decisions/ADR-0001-three-layer-hybrid-architecture-and-post-training.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [Custom Model Guide](CUSTOM_MODEL_GUIDE.md) | Complete | 2026-11-15 |
+| **Layer 1: Strategy Advisor & Compact Scratch SLM (`scratch_trainer.py`)** | `CreationStrategyAdvisor`, `ModelCreationPath`, `BytePairTokenizer`, `ScratchSLMConfig` (`10M`–`350M` tiers + micro defaults), `CompactTransformerSLMTrainer`, `ScratchSLMArtifact` | [`docs/modules/layer1-intelligence.md`](modules/layer1-intelligence.md), [`src/platform_core/layer1_intelligence/README.md`](../src/platform_core/layer1_intelligence/README.md) | [ADR-0006](architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md) | [Custom Model Guide](CUSTOM_MODEL_GUIDE.md) | Complete | 2026-11-15 |
+| **Layer 2: Shared State, Epistemic Ledger & SQLite Checkpointer (`state.py`)** | `PlatformState`, `EpistemicAssessment`, `EpistemicClaim`, `EpistemicStatus`, `SubTask`, `ArtifactRef`, `ApprovalRequest`, and thread-safe WAL `SQLiteStateCheckpointer` | [`docs/modules/layer2-execution.md`](modules/layer2-execution.md), [`src/platform_core/layer2_execution/README.md`](../src/platform_core/layer2_execution/README.md) | [Data Flow & ER Schema](architecture/data-flow.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [Playbook A: SQLite Database Operations](guides/README.md#playbook-a-sqlite-state--code-graph-database-operations) | Complete | 2026-11-15 |
+| **Layer 2: Firecracker MicroVM & CoW Snapshots (`sandbox.py`)** | `FirecrackerSandboxManager`, 24-syscall seccomp profile, credential stripping, and `<15ms` CoW snapshot rollback | [`docs/modules/layer2-execution.md`](modules/layer2-execution.md) | [ADR-0002](architecture/decisions/ADR-0002-executor-verifier-separation-and-cow-rollback.md), [Security Architecture](security/README.md) | [How-To 2: CoW Snapshot Rollback](HOW_TO_GUIDES.md#3-how-to-2-recover-self-failed-patches-automatically-using-15ms-cow-snapshot-rollback) | Complete | 2026-11-15 |
+| **Layer 2: Deterministic MCP Tool Suites (`mcp_tools.py`, `vuln_intel_mcp.py`, `forensics_mcp.py`)** | `CodeGraphMCPServer`, `BinRevMCPServer`, `DefensiveCyberMCPServer` (AST taint), `DataAndVisualMCPServer` (image/PDF inspection), `VulnIntelMCPServer` (OSV/NVD/KEV/EPSS/RoE), and `ForensicsMCPServer` (STIX2 + iOS/Android/Host triage) | [`docs/modules/layer2-execution.md`](modules/layer2-execution.md), [`src/platform_core/layer2_execution/README.md`](../src/platform_core/layer2_execution/README.md) | [Integrations](architecture/integrations.md), [ADR-0004](architecture/decisions/ADR-0004-bitemporal-memory-and-200k-hybrid-knowledge-store.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [How-To 1, 3, 4 & 5](HOW_TO_GUIDES.md) | Complete | 2026-11-15 |
+| **Layer 2: 6 Specialist Agents, Tool Loop & 10-Step Orchestrator (`agents.py`, `orchestrator.py`)** | 6 consolidated agent nodes (`can_mark_completed` gate), `AgentToolLoop`, and `ExecutionLifecycleOrchestrator` (epistemic ledger at Step 10) | [`docs/workflows/agent-execution-lifecycle.md`](workflows/agent-execution-lifecycle.md) | [System Architecture](architecture/system-architecture.md), [ADR-0002](architecture/decisions/ADR-0002-executor-verifier-separation-and-cow-rollback.md) | [How-To 1 & 2](HOW_TO_GUIDES.md), [Operations Runbook](operations/README.md) | Complete | 2026-11-15 |
+| **Layer 2: Google Antigravity SDK Bridge & MCP Stdio (`agy_sdk_bridge.py`)** | `AgySkillDiscovery`, `AgyStdioMCPBridge` (6 servers, JSON-RPC 2.0 stdio), `AgyLocalOrchestrator` (`LiteRT` / `LocalOpenAI` + `IndependentVerifierAgent` gate), `AgyLocalAgentSpec`, `AgyExecutionResult` | [`docs/modules/layer2-execution.md`](modules/layer2-execution.md), [`src/platform_core/layer2_execution/README.md`](../src/platform_core/layer2_execution/README.md) | [ADR-0006](architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md) | [CLI Reference](modules/cli.md) | Complete | 2026-11-15 |
+| **Layer 3: Bitemporal Memory, RAG & Project Context (`memory.py`)** | `BitemporalEpisodicMemory` (WAL SQLite + FTS5/vector RRF), `HybridKnowledgeStore` (200K-token prefix rule), and `ProjectContextManager` | [`docs/modules/layer3-evolution.md`](modules/layer3-evolution.md), [`src/platform_core/layer3_evolution/README.md`](../src/platform_core/layer3_evolution/README.md) | [ADR-0004](architecture/decisions/ADR-0004-bitemporal-memory-and-200k-hybrid-knowledge-store.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [How-To 6: Bitemporal Facts & Knowledge Store](HOW_TO_GUIDES.md#7-how-to-6-track-bitemporal-architectural-facts--use-the-200k-token-hybrid-knowledge-store) | Complete | 2026-11-15 |
+| **Layer 3: Corpus Harvesting & Teacher Distillation (`corpus_harvester.py`)** | `CorpusHarvesterPipeline`, `PDFBookExtractor`, `RateLimitedWebHarvester`, `TeacherDistiller`, `PromptInjectionSanitizer`, `DomainChunker`, `RateLimitError` | [`docs/modules/layer3-evolution.md`](modules/layer3-evolution.md), [`src/platform_core/layer3_evolution/README.md`](../src/platform_core/layer3_evolution/README.md) | [ADR-0006](architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md) | [Custom Model Guide](CUSTOM_MODEL_GUIDE.md) | Complete | 2026-11-15 |
+| **Layer 3: Data Factories & Hygiene (`data_factory.py`)** | `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, and 4-gate `DatasetHygienePipeline` | [`docs/modules/layer3-evolution.md`](modules/layer3-evolution.md) | [Data Flow](architecture/data-flow.md) | [Custom Model Guide](CUSTOM_MODEL_GUIDE.md) | Complete | 2026-11-15 |
+| **Layer 3: PropBench-9, Executable Benchmarks & Improvement Cycle (`evaluation.py`, `observability.py`)** | `PropBench9Suite`, `BenchmarkSuiteRunner` (5 executable suites), `BenchmarkEvaluator` (95% CI, $\text{pass}^4$, Canary Gate), and 8-step `ControlledImprovementCycle` | [`docs/workflows/controlled-improvement-cycle.md`](workflows/controlled-improvement-cycle.md), [`docs/testing/README.md`](testing/README.md) | [System Architecture](architecture/system-architecture.md), [ADR-0005](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | [Testing Guide](testing/README.md), [Operations Runbook](operations/README.md) | Complete | 2026-11-15 |
+| **Deploy & Supply-Chain Security (`governance.py`)** | `SafetensorsValidator`, `LicenseComplianceAuditor`, `SignedManifestVerifier`, `CyberGymFirewall`, `K8sAgentSandboxGenerator` | [`docs/modules/deploy-security.md`](modules/deploy-security.md), [`docs/security/README.md`](security/README.md), [`src/platform_core/deploy_security/README.md`](../src/platform_core/deploy_security/README.md) | [ADR-0003](architecture/decisions/ADR-0003-taint-isolation-safetensors-and-sovereign-licensing.md), [Integrations](architecture/integrations.md) | [Deployment Guide](deployment/README.md), [Troubleshooting Playbook](development/troubleshooting.md) | Complete | 2026-11-15 |
+| **Workspace Skills (`.agents/skills/`)** | 5 discoverable skills (`corpus-harvester`, `local-model-advisor`, `scratch-slm-trainer`, `pretrained-qlora-finetuner`, `agy-local-agent-runner`) | [`.agents/README.md`](../.agents/README.md) | [ADR-0006](architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md) | [Custom Model Guide](CUSTOM_MODEL_GUIDE.md) | Complete | 2026-11-15 |
+| **Examples & Test Suite (`examples/`, `tests/`)** | End-to-end custom model script, sample JSONL/JSON inputs, and 49-test verification suite across 8 test modules | [`examples/README.md`](../examples/README.md), [`tests/README.md`](../tests/README.md) | [Testing Guide](testing/README.md) | [Getting Started](development/getting-started.md) | Complete | 2026-11-15 |
+
+---
+
+## 2. Complete File Inventory of the Documentation Ecosystem
+
+- **Root Governance & Entrypoints**:
+  - [`/README.md`](../README.md)
+  - [`/AGENTS.md`](../AGENTS.md)
+  - [`/CONTRIBUTING.md`](../CONTRIBUTING.md)
+  - [`/CHANGELOG.md`](../CHANGELOG.md)
+- **Central Documentation (`docs/`)**:
+  - [`docs/README.md`](README.md)
+  - [`docs/DOCUMENTATION_STANDARDS.md`](DOCUMENTATION_STANDARDS.md)
+  - [`docs/AI_DOCUMENTATION_POLICY.md`](AI_DOCUMENTATION_POLICY.md)
+  - [`docs/DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md)
+  - [`docs/DOCUMENTATION_COVERAGE.md`](DOCUMENTATION_COVERAGE.md)
+  - [`docs/CUSTOM_MODEL_GUIDE.md`](CUSTOM_MODEL_GUIDE.md)
+  - [`docs/HOW_TO_GUIDES.md`](HOW_TO_GUIDES.md)
+  - [`docs/overview/project-overview.md`](overview/project-overview.md)
+  - [`docs/architecture/README.md`](architecture/README.md)
+  - [`docs/architecture/system-architecture.md`](architecture/system-architecture.md)
+  - [`docs/architecture/component-architecture.md`](architecture/component-architecture.md)
+  - [`docs/architecture/data-flow.md`](architecture/data-flow.md)
+  - [`docs/architecture/integrations.md`](architecture/integrations.md)
+  - [`docs/architecture/decisions/README.md`](architecture/decisions/README.md)
+  - [`docs/architecture/decisions/ADR-0001-three-layer-hybrid-architecture-and-post-training.md`](architecture/decisions/ADR-0001-three-layer-hybrid-architecture-and-post-training.md)
+  - [`docs/architecture/decisions/ADR-0002-executor-verifier-separation-and-cow-rollback.md`](architecture/decisions/ADR-0002-executor-verifier-separation-and-cow-rollback.md)
+  - [`docs/architecture/decisions/ADR-0003-taint-isolation-safetensors-and-sovereign-licensing.md`](architecture/decisions/ADR-0003-taint-isolation-safetensors-and-sovereign-licensing.md)
+  - [`docs/architecture/decisions/ADR-0004-bitemporal-memory-and-200k-hybrid-knowledge-store.md`](architecture/decisions/ADR-0004-bitemporal-memory-and-200k-hybrid-knowledge-store.md)
+  - [`docs/architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md`](architecture/decisions/ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md)
+  - [`docs/architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md`](architecture/decisions/ADR-0006-local-ai-creator-and-antigravity-sdk.md)
+  - [`docs/modules/README.md`](modules/README.md)
+  - [`docs/modules/cli.md`](modules/cli.md)
+  - [`docs/modules/layer1-intelligence.md`](modules/layer1-intelligence.md)
+  - [`docs/modules/layer2-execution.md`](modules/layer2-execution.md)
+  - [`docs/modules/layer3-evolution.md`](modules/layer3-evolution.md)
+  - [`docs/modules/deploy-security.md`](modules/deploy-security.md)
+  - [`docs/workflows/README.md`](workflows/README.md)
+  - [`docs/workflows/agent-execution-lifecycle.md`](workflows/agent-execution-lifecycle.md)
+  - [`docs/workflows/model-post-training-pipeline.md`](workflows/model-post-training-pipeline.md)
+  - [`docs/workflows/controlled-improvement-cycle.md`](workflows/controlled-improvement-cycle.md)
+  - [`docs/development/README.md`](development/README.md)
+  - [`docs/development/getting-started.md`](development/getting-started.md)
+  - [`docs/development/environment-setup.md`](development/environment-setup.md)
+  - [`docs/development/configuration.md`](development/configuration.md)
+  - [`docs/development/development-workflow.md`](development/development-workflow.md)
+  - [`docs/development/troubleshooting.md`](development/troubleshooting.md)
+  - [`docs/api/README.md`](api/README.md)
+  - [`docs/testing/README.md`](testing/README.md)
+  - [`docs/deployment/README.md`](deployment/README.md)
+  - [`docs/security/README.md`](security/README.md)
+  - [`docs/operations/README.md`](operations/README.md)
+  - [`docs/guides/README.md`](guides/README.md)
+- **Colocated Module READMEs**:
+  - [`src/platform_core/README.md`](../src/platform_core/README.md)
+  - [`src/platform_core/layer1_intelligence/README.md`](../src/platform_core/layer1_intelligence/README.md)
+  - [`src/platform_core/layer2_execution/README.md`](../src/platform_core/layer2_execution/README.md)
+  - [`src/platform_core/layer3_evolution/README.md`](../src/platform_core/layer3_evolution/README.md)
+  - [`src/platform_core/deploy_security/README.md`](../src/platform_core/deploy_security/README.md)
+  - [`examples/README.md`](../examples/README.md)
+  - [`tests/README.md`](../tests/README.md)
