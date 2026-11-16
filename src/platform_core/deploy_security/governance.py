@@ -52,6 +52,10 @@ class LicenseAuditResult:
     eu_compliant: bool
     allows_commercial_distillation: bool
 
+    @property
+    def approved(self) -> bool:
+        return self.verdict == LicenseVerdict.APPROVED_COMMERCIAL
+
 
 class LicenseComplianceAuditor:
     """Audits base models and datasets against the platform's sovereign IP policy."""
@@ -87,6 +91,11 @@ class LicenseComplianceAuditor:
         ),
         "Research-Only": "Rejected: Non-commercial research restriction (e.g., DeepSeek-V3.2-Speciale).",
     }
+
+    @classmethod
+    def audit_license(cls, license_id: str, artifact_name: str = "dataset") -> LicenseAuditResult:
+        """Evaluate a license ID directly against platform compliance rules."""
+        return cls().audit(artifact_name=artifact_name, license_id=license_id)
 
     def audit(self, artifact_name: str, license_id: str) -> LicenseAuditResult:
         """Evaluate an artifact's license against platform compliance rules."""

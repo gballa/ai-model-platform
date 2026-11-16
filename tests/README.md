@@ -4,7 +4,7 @@
 
 ## 1. Module Responsibilities and Boundaries
 
-The `tests/` directory contains the **49-test** automated verification suite across **8** test modules covering all four subpackages of `platform_core` (`deploy_security`, `layer1_intelligence`, `layer2_execution`, `layer3_evolution`), the unified CLI (`cli.py`), and all 5 workspace skills under `.agents/skills/`.
+The `tests/` directory contains the **205-test** automated verification suite across core unit/integration test modules and the 4-tier E2E discipline suite (`tests/e2e/`), covering all four subpackages of `platform_core` (`deploy_security`, `layer1_intelligence`, `layer2_execution`, `layer3_evolution`), the unified CLI (`cli.py`), and all 5 workspace skills under `.agents/skills/`.
 
 ---
 

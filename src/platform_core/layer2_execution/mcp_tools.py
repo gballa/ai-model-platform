@@ -737,7 +737,7 @@ class DefensiveCyberMCPServer:
             "CWE-798",
             "HIGH",
             re.compile(
-                r"""\b(?:API_KEY|SECRET_KEY|PASSWORD|AUTH_TOKEN|PRIVATE_KEY)\s*=\s*["'][A-Za-z0-9_/+=-]{12,}["']"""
+                r"""\b(?:API_KEY|SECRET_KEY|PASSWORD|AUTH_TOKEN|PRIVATE_KEY)(?:\s*=\s*|\s+)["'][A-Za-z0-9_/+=-]{12,}["']"""
             ),
             "Hardcoded credential or API secret literal embedded in source.",
             "Move secrets to environment variables, KMS, or runtime secret managers.",
@@ -1215,9 +1215,12 @@ class DataAndVisualMCPServer:
             expected_size += fsize
 
         magic_matches = sample_payload.startswith(magic_bytes)
-        byte_coverage_ratio = (
-            min(1.0, expected_size / len(sample_payload)) if len(sample_payload) > 0 else 1.0
-        )
+        if expected_size == len(sample_payload):
+            byte_coverage_ratio = 1.0
+        elif expected_size > 0 and len(sample_payload) > 0:
+            byte_coverage_ratio = min(expected_size, len(sample_payload)) / max(expected_size, len(sample_payload))
+        else:
+            byte_coverage_ratio = 0.0
 
         return {
             "format_id": format_id,
@@ -1435,23 +1438,27 @@ class DataAndVisualMCPServer:
             from pypdf import PdfReader  # type: ignore[import-not-found]
 
             reader = PdfReader(io.BytesIO(raw_pdf))
-            return "\n".join((page.extract_text() or "") for page in reader.pages)
-        except ImportError:
-            # Pure-Python fallback: decompress FlateDecode streams safely & extract literal PDF text
-            chunks: list[str] = []
-            for m in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", raw_pdf, re.DOTALL):
-                stream_bytes = m.group(1)
-                try:
-                    decomp = zlib.decompressobj()
-                    decoded = decomp.decompress(stream_bytes, max_length=2 * 1024 * 1024)
-                except zlib.error:
-                    decoded = stream_bytes
-                for tm in re.finditer(rb"\(([^()]{1,500})\)\s*Tj", decoded):
-                    chunks.append(tm.group(1).decode("latin-1", errors="ignore"))
-            if not chunks:
-                for tm in re.finditer(rb"\(([^()]{1,500})\)\s*Tj", raw_pdf):
-                    chunks.append(tm.group(1).decode("latin-1", errors="ignore"))
-            return "\n".join(chunks)
+            extracted = "\n".join((page.extract_text() or "") for page in reader.pages)
+            if extracted.strip():
+                return extracted
+        except Exception:
+            pass
+
+        # Pure-Python fallback: decompress FlateDecode streams safely & extract literal PDF text
+        chunks: list[str] = []
+        for m in re.finditer(rb"stream\r?\n(.*?)\r?\nendstream", raw_pdf, re.DOTALL):
+            stream_bytes = m.group(1)
+            try:
+                decomp = zlib.decompressobj()
+                decoded = decomp.decompress(stream_bytes, max_length=2 * 1024 * 1024)
+            except zlib.error:
+                decoded = stream_bytes
+            for tm in re.finditer(rb"\(([^()]{1,500})\)\s*Tj", decoded):
+                chunks.append(tm.group(1).decode("latin-1", errors="ignore"))
+        if not chunks:
+            for tm in re.finditer(rb"\(([^()]{1,500})\)\s*Tj", raw_pdf):
+                chunks.append(tm.group(1).decode("latin-1", errors="ignore"))
+        return "\n".join(chunks)
 
     @classmethod
     def analyze_visual_artifact(

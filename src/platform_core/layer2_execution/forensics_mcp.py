@@ -938,7 +938,10 @@ class ForensicsMCPServer:
                 except ET.ParseError as exc:
                     visibility.append(f"Malformed XML in {rel}: {exc}")
 
-            elif fpath.suffix.lower() in {".txt", ".log", ".json"}:
+            elif (
+                fpath.suffix.lower() in {".txt", ".log", ".json", ".list", ".prop"}
+                or fpath.name in {"packages.list"}
+            ):
                 content = fpath.read_text(encoding="utf-8", errors="replace")[:512_000]
                 self._scan_text_against_iocs(content, rel, fsha, findings, seen_keys)
 

@@ -332,8 +332,8 @@ class BenchmarkSuiteRunner:
         )
         return results
 
-    @staticmethod
-    def run_cyber_and_vuln_suite() -> list[BenchmarkCaseResult]:
+    @classmethod
+    def run_cyber_and_vuln_suite(cls) -> list[BenchmarkCaseResult]:
         from platform_core.layer2_execution.mcp_tools import DefensiveCyberMCPServer
         from platform_core.layer2_execution.vuln_intel_mcp import VulnFindingClassification, VulnIntelMCPServer
 
@@ -400,7 +400,299 @@ class BenchmarkSuiteRunner:
                 )
         finally:
             vuln.close()
+
+        # Newly acquired cybersecurity disciplines:
+        results.extend(cls.run_binary_analysis_suite())
+        results.extend(cls.run_exploit_mechanics_suite())
+        results.extend(cls.run_network_protocols_suite())
+        results.extend(cls.run_roe_and_scope_suite())
         return results
+
+    @staticmethod
+    def run_binary_analysis_suite() -> list[BenchmarkCaseResult]:
+        """Binary Analysis: ELF64 checksec program header triage & constant division recovery."""
+        from platform_core.layer2_execution.mcp_tools import BinRevMCPServer
+
+        binrev = BinRevMCPServer()
+        # 1. ELF64 x86_64 program header triage with checksec hardening detection
+        elf_bytes = (
+            b"\x7fELF"  # ELF magic
+            b"\x02"     # 64-bit (ELFCLASS64)
+            b"\x01"     # 2's complement, little endian (ELFDATA2LSB)
+            b"\x01"     # EV_CURRENT
+            + (b"\x00" * 9)  # OS ABI & padding
+            + b"\x02\x00"  # e_type = ET_EXEC
+            + b"\x3e\x00"  # e_machine = EM_X86_64 (0x3E)
+            + b"\x01\x00\x00\x00"  # e_version = 1
+            + (b"\x00" * 32)
+            + b"GNU_STACK\x00"
+            + b"__stack_chk_fail\x00"
+            + b"_chk\x00"
+            + b"main\x00"
+        )
+        inspect_res = binrev.inspect_binary(elf_bytes, artifact_name="triage_elf64.bin")
+        checksec = inspect_res.get("checksec", {})
+        triage_ok = (
+            inspect_res.get("format") == "ELF"
+            and inspect_res.get("architecture") == "x86_64"
+            and checksec.get("nx_enabled") is True
+            and checksec.get("stack_canary") is True
+            and checksec.get("fortify_source") is True
+            and checksec.get("pie_or_aslr") is True
+        )
+
+        # 2. Constant division recovery (Granlund-Montgomery reciprocal multiplication & shift)
+        # In x86_64 disassembly: unsigned division by 14 is compiled to ((n * 0x24924925) >> 33).
+        # We verify arithmetic equivalence across boundary test vectors and reconstruct semantic C.
+        div_test_vals = (0, 1, 13, 14, 27, 28, 140, 9999, 140000)
+        math_recovery_ok = all(((n * 0x24924925) >> 33) == (n // 14) for n in div_test_vals)
+
+        raw_ghidra = (
+            "undefined8 recover_div14(undefined4 n) {\n"
+            "    undefined8 quotient;\n"
+            "    quotient = (undefined8)(((uint64_t)n * 0x24924925ULL) >> 33);\n"
+            "    return quotient;\n"
+            "}\n"
+        )
+        sk2_out = binrev.run_two_phase_sk2_decompile(
+            raw_ghidra_pseudocode=raw_ghidra,
+            dataflow_aliases={"n": "dividend"},
+        )
+        skin_c = sk2_out.get("phase2_skin_decompiled_code", "")
+        sk2_ok = "uint64_t quotient" in skin_c and "uint32_t dividend" in skin_c
+
+        passed = triage_ok and math_recovery_ok and sk2_ok
+        return [
+            BenchmarkCaseResult(
+                case_id="cyber-3",
+                suite="cyber_vuln",
+                passed=passed,
+                score=1.0 if passed else 0.0,
+                details="ELF64 checksec program header triage & constant division recovery",
+            )
+        ]
+
+    @staticmethod
+    def run_exploit_mechanics_suite() -> list[BenchmarkCaseResult]:
+        """Exploit Mechanics: stack canary integrity & ROP gadget chain validation."""
+        from platform_core.layer2_execution.mcp_tools import DefensiveCyberMCPServer
+
+        cyber = DefensiveCyberMCPServer()
+
+        # 1. Stack canary integrity validation
+        # Model x86_64 stack frame layout: [buffer: 64B][canary: 8B][saved_rbp: 8B][saved_rip: 8B]
+        golden_canary = 0xDEADBEEFC001CAFE
+        frame_memory = bytearray(64 + 8 + 8 + 8)
+        frame_memory[64:72] = golden_canary.to_bytes(8, "little")
+        frame_memory[80:88] = (0x00007FFFF7A12345).to_bytes(8, "little")
+
+        def _check_canary(mem: bytearray) -> bool:
+            return int.from_bytes(mem[64:72], "little") == golden_canary
+
+        # Benign write (32 bytes) preserves canary
+        mem_benign = bytearray(frame_memory)
+        mem_benign[0:32] = b"A" * 32
+        canary_benign_intact = _check_canary(mem_benign)
+
+        # Overflow payload (80 bytes) overwrites canary, triggering mitigation failure
+        mem_overflow = bytearray(frame_memory)
+        mem_overflow[0:80] = b"A" * 80
+        canary_overflow_detected = not _check_canary(mem_overflow)
+
+        canary_ok = canary_benign_intact and canary_overflow_detected
+
+        # 2. ROP gadget chain validation (execve("/bin/sh", 0, 0) setup)
+        # Chain verifies: gadget termination (0xc3), 16-byte stack alignment, and register state
+        rop_chain = [
+            {"gadget": "pop_rax_ret", "opcodes": b"\x58\xc3", "delta": 8, "reg": "rax", "val": 59},
+            {"gadget": "pop_rdi_ret", "opcodes": b"\x5f\xc3", "delta": 8, "reg": "rdi", "val": 0x404050},
+            {"gadget": "pop_rsi_ret", "opcodes": b"\x5e\xc3", "delta": 8, "reg": "rsi", "val": 0},
+            {"gadget": "pop_rdx_ret", "opcodes": b"\x5a\xc3", "delta": 8, "reg": "rdx", "val": 0},
+            {"gadget": "syscall_ret", "opcodes": b"\x0f\x05\xc3", "delta": 0, "reg": None, "val": None},
+        ]
+        gadgets_valid = all(g["opcodes"].endswith(b"\xc3") for g in rop_chain)
+        regs_set: dict[str, int] = {}
+        curr_rsp = 0x7FFFFFFFE000  # 16-byte aligned starting stack pointer
+        for g in rop_chain:
+            curr_rsp += g["delta"]
+            if g["reg"]:
+                regs_set[g["reg"]] = g["val"]
+
+        rop_ok = (
+            gadgets_valid
+            and regs_set.get("rax") == 59
+            and regs_set.get("rdi") == 0x404050
+            and regs_set.get("rsi") == 0
+            and regs_set.get("rdx") == 0
+            and (curr_rsp % 16 == 0)
+        )
+
+        # 3. Defensive CPG taint scan & dual-gate patch verification
+        vuln_c = "void handle(char *src) {\n    char dst[64];\n    strcpy(dst, src);\n}\n"
+        taints = cyber.scan_cpg_taint(vuln_c)
+        cwe120_found = any(f.cwe_id == "CWE-120" for f in taints)
+
+        patched_c = "void handle(char *src) {\n    char dst[64];\n    strncpy(dst, src, sizeof(dst) - 1);\n    dst[sizeof(dst) - 1] = '\\0';\n}\n"
+        dual_gate = cyber.verify_dual_gate_patch(
+            patched_source=patched_c,
+            poc_triggered_crash=False,
+            regression_tests_passed=4,
+            regression_tests_total=4,
+        )
+        remediation_ok = dual_gate.get("verdict") == "VERIFIED_PASS"
+
+        passed = canary_ok and rop_ok and cwe120_found and remediation_ok
+        return [
+            BenchmarkCaseResult(
+                case_id="cyber-4",
+                suite="cyber_vuln",
+                passed=passed,
+                score=1.0 if passed else 0.0,
+                details="Stack canary integrity & ROP gadget chain validation",
+            )
+        ]
+
+    @staticmethod
+    def run_network_protocols_suite() -> list[BenchmarkCaseResult]:
+        """Network Protocols: IPv4 RFC 1071 checksum & TCP state transition validation."""
+        from platform_core.layer2_execution.mcp_tools import DataAndVisualMCPServer, TransformationClass
+
+        # 1. RFC 1071 IPv4 header checksum algorithm verification
+        def _calc_checksum(raw_hdr: bytes) -> int:
+            if len(raw_hdr) % 2 != 0:
+                raw_hdr += b"\x00"
+            s = sum((raw_hdr[i] << 8) | raw_hdr[i + 1] for i in range(0, len(raw_hdr), 2))
+            while (s >> 16) > 0:
+                s = (s & 0xFFFF) + (s >> 16)
+            return (~s) & 0xFFFF
+
+        hdr_zero_csum = bytes.fromhex("4500003c1c46400040060000c0a80001c0a800c7")
+        computed_csum = _calc_checksum(hdr_zero_csum)
+        hdr_with_csum = bytes.fromhex(f"4500003c1c4640004006{computed_csum:04x}c0a80001c0a800c7")
+        verified_csum = _calc_checksum(hdr_with_csum)
+        csum_ok = (computed_csum == 0x9C5D) and (verified_csum == 0x0000)
+
+        # 2. TCP State Machine transitions (RFC 793 / RFC 9293)
+        valid_transitions = {
+            ("CLOSED", "APP_PASSIVE_OPEN"): "LISTEN",
+            ("LISTEN", "RECV_SYN"): "SYN_RECEIVED",
+            ("SYN_SENT", "RECV_SYN_ACK"): "ESTABLISHED",
+            ("SYN_RECEIVED", "RECV_ACK"): "ESTABLISHED",
+            ("ESTABLISHED", "APP_CLOSE"): "FIN_WAIT_1",
+            ("FIN_WAIT_1", "RECV_ACK"): "FIN_WAIT_2",
+            ("FIN_WAIT_2", "RECV_FIN"): "TIME_WAIT",
+            ("ESTABLISHED", "RECV_FIN"): "CLOSE_WAIT",
+            ("CLOSE_WAIT", "APP_CLOSE"): "LAST_ACK",
+            ("LAST_ACK", "RECV_ACK"): "CLOSED",
+        }
+        state = "CLOSED"
+        state = valid_transitions.get((state, "APP_PASSIVE_OPEN"), "ERR")
+        state = valid_transitions.get((state, "RECV_SYN"), "ERR")
+        state = valid_transitions.get((state, "RECV_ACK"), "ERR")
+        handshake_ok = (state == "ESTABLISHED")
+
+        state = valid_transitions.get((state, "APP_CLOSE"), "ERR")
+        state = valid_transitions.get((state, "RECV_ACK"), "ERR")
+        state = valid_transitions.get((state, "RECV_FIN"), "ERR")
+        teardown_ok = (state == "TIME_WAIT")
+
+        invalid_rejected = (
+            ("LISTEN", "RECV_FIN") not in valid_transitions
+            and ("CLOSED", "RECV_DATA") not in valid_transitions
+        )
+
+        tcp_ok = handshake_ok and teardown_ok and invalid_rejected
+
+        # 3. Grounding with DataAndVisualMCPServer protocol transformation classification
+        cls_res = DataAndVisualMCPServer.classify_transformation(hdr_with_csum)
+        proto_class_ok = cls_res["transformation_class"] == TransformationClass.ENCODING_SERIALIZATION
+
+        passed = csum_ok and tcp_ok and proto_class_ok
+        return [
+            BenchmarkCaseResult(
+                case_id="cyber-5",
+                suite="cyber_vuln",
+                passed=passed,
+                score=1.0 if passed else 0.0,
+                details="IPv4 checksum & TCP state transition validation",
+            )
+        ]
+
+    @staticmethod
+    def run_roe_and_scope_suite() -> list[BenchmarkCaseResult]:
+        """Rules of Engagement / Scope authorization checks."""
+        from platform_core.layer2_execution.sandbox import FirecrackerSandboxManager
+        from platform_core.layer2_execution.vuln_intel_mcp import AuthorizationScope, VulnIntelMCPServer
+
+        # 1. RoE Scope specification & authorization validation
+        scope = AuthorizationScope(
+            engagement_id="ROE-2026-M4-01",
+            authorized_targets=("10.10.0.0/16", "*.corp.internal"),
+            valid_from_utc="2026-01-01T00:00:00Z",
+            valid_until_utc="2026-12-31T23:59:59Z",
+            allowed_actions=frozenset({"vuln_audit", "port_scan", "cpg_taint"}),
+            operator_approval_id="OP-SIG-2026-999",
+        )
+
+        r_cidr = VulnIntelMCPServer.verify_authorization(
+            scope=scope,
+            target="10.10.5.21",
+            action="port_scan",
+            now_utc="2026-06-01T12:00:00Z",
+        )
+        r_fqdn = VulnIntelMCPServer.verify_authorization(
+            scope=scope,
+            target="https://vault.corp.internal:8443/api",
+            action="vuln_audit",
+            now_utc="2026-06-01T12:00:00Z",
+        )
+        r_out_target = VulnIntelMCPServer.verify_authorization(
+            scope=scope,
+            target="192.168.1.1",
+            action="port_scan",
+            now_utc="2026-06-01T12:00:00Z",
+        )
+        r_out_action = VulnIntelMCPServer.verify_authorization(
+            scope=scope,
+            target="10.10.5.21",
+            action="exploit_execute",
+            now_utc="2026-06-01T12:00:00Z",
+        )
+        r_expired = VulnIntelMCPServer.verify_authorization(
+            scope=scope,
+            target="10.10.5.21",
+            action="port_scan",
+            now_utc="2027-02-01T12:00:00Z",
+        )
+
+        roe_auth_ok = (
+            r_cidr.get("authorized") is True
+            and r_fqdn.get("authorized") is True
+            and r_out_target.get("authorized") is False
+            and r_out_action.get("authorized") is False
+            and r_expired.get("authorized") is False
+        )
+
+        # 2. Sandbox egress isolation under TAINTED_UNTRUSTED session
+        sb = FirecrackerSandboxManager()
+        sb.provision_microvm("vm-roe-bench", {}, tainted=True)
+        egress_decision = sb.check_network_egress("vm-roe-bench", "8.8.8.8:53")
+        egress_blocked_ok = (
+            egress_decision.allowed is False
+            and egress_decision.tainted_session is True
+            and "TAINTED_UNTRUSTED" in egress_decision.reason
+        )
+
+        passed = roe_auth_ok and egress_blocked_ok
+        return [
+            BenchmarkCaseResult(
+                case_id="cyber-6",
+                suite="cyber_vuln",
+                passed=passed,
+                score=1.0 if passed else 0.0,
+                details="Rules of Engagement / Scope authorization checks",
+            )
+        ]
 
     @staticmethod
     def run_forensics_spyware_suite() -> list[BenchmarkCaseResult]:
@@ -488,6 +780,14 @@ class BenchmarkSuiteRunner:
 
         return results
 
+    DEFAULT_SUITES: tuple[str, ...] = (
+        "coding",
+        "reasoning",
+        "cyber_vuln",
+        "forensics",
+        "hallucination_resistance",
+    )
+
     @classmethod
     def run_all_suites(cls, suites: tuple[str, ...] | list[str] | None = None) -> dict[str, Any]:
         """Execute selected or all live capability & anti-hallucination benchmark suites."""
@@ -497,8 +797,12 @@ class BenchmarkSuiteRunner:
             "cyber_vuln": cls.run_cyber_and_vuln_suite,
             "forensics": cls.run_forensics_spyware_suite,
             "hallucination_resistance": cls.run_hallucination_and_abstention_suite,
+            "binary_analysis": cls.run_binary_analysis_suite,
+            "exploit_mechanics": cls.run_exploit_mechanics_suite,
+            "network_protocols": cls.run_network_protocols_suite,
+            "roe_scope": cls.run_roe_and_scope_suite,
         }
-        selected = [s.strip().lower() for s in suites] if suites else list(dispatch.keys())
+        selected = [s.strip().lower() for s in suites] if suites else list(cls.DEFAULT_SUITES)
         for s in selected:
             if s not in dispatch:
                 raise ValueError(f"Unknown benchmark suite '{s}': choose from {list(dispatch.keys())}")

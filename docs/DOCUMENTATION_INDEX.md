@@ -1,6 +1,6 @@
 # Living Documentation Index & Subsystem Registry
 
-**Last Verified:** 2026-11-15  
+**Last Verified:** 2026-11-16  
 **Governance Policy:** [docs/DOCUMENTATION_STANDARDS.md](DOCUMENTATION_STANDARDS.md) & [docs/AI_DOCUMENTATION_POLICY.md](AI_DOCUMENTATION_POLICY.md)
 
 This file is the authoritative inventory of all documentation across `platform-core`. Update this index whenever documentation files are added, moved, or retired.

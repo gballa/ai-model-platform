@@ -1,6 +1,6 @@
 # Documentation Coverage & Source-Code Traceability Matrix
 
-**Last Audited:** 2026-11-15  
+**Last Audited:** 2026-11-16  
 **Allowed Statuses:** `Complete` (Documented), `Partial` (Partially documented), `Needs verification` (Requires verification), `Missing` (Not documented), `Not applicable`
 
 This matrix maps every application entrypoint, module, workflow, integration boundary, operational process, and architectural component in `platform-core` to its authoritative documentation, source-code implementation, automated verification test, and outstanding gap analysis.

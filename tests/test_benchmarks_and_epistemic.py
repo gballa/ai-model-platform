@@ -100,6 +100,16 @@ class TestBenchmarksAndEpistemic(unittest.TestCase):
         bench = BenchmarkSuiteRunner.run_all_suites()
         self.assertEqual(bench["overall_verdict"], "PASS")
         self.assertEqual(bench["overall_score_pct"], 100.0)
+        self.assertEqual(bench["total_cases"], 15)
+        self.assertEqual(bench["suites"]["cyber_vuln"]["total"], 6)
+        self.assertEqual(bench["suites"]["cyber_vuln"]["passed"], 6)
+
+        sub_bench = BenchmarkSuiteRunner.run_all_suites(
+            suites=["binary_analysis", "exploit_mechanics", "network_protocols", "roe_scope"]
+        )
+        self.assertEqual(sub_bench["overall_verdict"], "PASS")
+        self.assertEqual(sub_bench["total_cases"], 4)
+        self.assertEqual(sub_bench["total_passed"], 4)
 
         self.assertEqual(cli_main(["hardware-check"]), 0)
         self.assertEqual(cli_main(["run-benchmarks"]), 0)

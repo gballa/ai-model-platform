@@ -154,6 +154,26 @@ class BitemporalEpisodicMemory:
             commit_sha=commit_sha,
         )
 
+    def record_event(
+        self,
+        session_id: str,
+        event_type: str,
+        description: str = "",
+        confidence: float = 1.0,
+        commit_sha: str | None = None,
+        summary: str | None = None,
+        timestamp: float | None = None,
+    ) -> ProgressionEvent:
+        """Record an episodic event, mapping description/summary into progression event."""
+        actual_summary = summary or description
+        return self.append_event(
+            session_id=session_id,
+            event_type=event_type,
+            summary=actual_summary,
+            commit_sha=commit_sha,
+            timestamp=timestamp,
+        )
+
     def upsert_architectural_fact(
         self,
         subject: str,
