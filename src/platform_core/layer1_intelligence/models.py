@@ -244,6 +244,11 @@ class ScenarioBudgetProfile:
 class ModelRegistry:
     """Registry of approved open-weight and post-trained specialist models in Layer 1."""
 
+    MODEL_PROFILES = {
+        "heretic-llm": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+        "annihilation-llm": "DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+    }
+
     def __init__(self, profile: HardwareProfile | str = HardwareProfile.CLUSTER_DEFAULT) -> None:
         self._auditor = LicenseComplianceAuditor()
         self._models: dict[str, ModelSpec] = {}
@@ -310,9 +315,9 @@ class ModelRegistry:
                 benchmark_highlights={"CTIBench-ATE": 84.0, "QLoRA-36GB-Capable": 1.0},
             ),
             ModelSpec(
-                model_id="Qwen/Qwen3.8-27B",
+                model_id="DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
                 pool=ModelPool.POOL_3_BINREV,
-                architecture="Dense Native VLM with 3:1 Gated DeltaNet Linear Attention",
+                architecture="Qwen3.8-27B Heretic derivative in GGUF format (llama.cpp)",
                 total_params_b=27.8,
                 active_params_b=27.8,
                 context_window=262_144,
@@ -320,7 +325,7 @@ class ModelRegistry:
                 vram_4bit_gb=17.5,
                 vram_fp8_gb=28.0,
                 supports_early_fusion_vision=True,
-                attention_mechanism="Gated DeltaNet 3:1 Dense",
+                attention_mechanism="GGUF quantized Qwen3.8-27B; llama.cpp runtime",
                 benchmark_highlights={"SWE-bench-Pro": 65.0, "Local-M3Pro-TokPerSec": 21.0},
             ),
             ModelSpec(
@@ -384,9 +389,9 @@ class ModelRegistry:
                 attention_mechanism="GQA Dense",
             ),
             ModelSpec(
-                model_id="Qwen/Qwen3.8-27B",
+                model_id="Qwen3.8-27B-BinRev",
                 pool=ModelPool.POOL_3_BINREV,
-                architecture="Dense Native VLM with 3:1 Gated DeltaNet Linear Attention",
+                architecture="Dense Native VLM with 3:1 Gated DeltaNet (SK2Decompile + ReCopilot)",
                 total_params_b=27.8,
                 active_params_b=27.8,
                 context_window=262_144,
@@ -395,6 +400,7 @@ class ModelRegistry:
                 vram_fp8_gb=28.0,
                 supports_early_fusion_vision=True,
                 attention_mechanism="Gated DeltaNet 3:1 Dense",
+                is_proprietary_fine_tune=True,
             ),
             ModelSpec(
                 model_id="Qwen/Qwen3-VL-8B-Thinking",
@@ -448,9 +454,9 @@ class ModelRegistry:
                 },
             ),
             ModelSpec(
-                model_id="Qwen3.8-27B-SWE-Cyber",
+                model_id="DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
                 pool=ModelPool.POOL_2_SWE_CYBER,
-                architecture="Dense Native VLM with 3:1 Gated DeltaNet Linear Attention",
+                architecture="Qwen3.8-27B Heretic coder derivative in GGUF format (llama.cpp)",
                 total_params_b=27.8,
                 active_params_b=27.8,
                 context_window=262_144,
@@ -458,8 +464,7 @@ class ModelRegistry:
                 vram_4bit_gb=16.0,
                 vram_fp8_gb=28.0,
                 supports_early_fusion_vision=True,
-                attention_mechanism="Gated DeltaNet 3:1 Dense",
-                is_proprietary_fine_tune=True,
+                attention_mechanism="GGUF quantized Qwen3.8-27B; llama.cpp runtime",
                 base_checkpoint="Qwen/Qwen3.8-27B",
                 benchmark_highlights={
                     "CyberGym-L1": 91.31,
@@ -535,6 +540,7 @@ class ModelRegistry:
         return None
 
     def get_model(self, model_id: str) -> ModelSpec:
+        model_id = self.MODEL_PROFILES.get(model_id, model_id)
         if model_id not in self._models:
             raise KeyError(f"Model '{model_id}' not found in Layer 1 registry.")
         return self._models[model_id]

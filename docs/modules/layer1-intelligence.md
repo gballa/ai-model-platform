@@ -31,6 +31,7 @@
 - **`ModelSpec`**: Immutable specification of a model checkpoint. Includes `to_dict()` and `from_dict(data)` with strict boolean-safe numeric validation (`_validate_positive_int`, `_validate_positive_float`).
 - **`ModelRegistry`**:
   - Registers 5 default models on initialization.
+  - The default SWE/Cyber pool now uses the Apache-2.0 GGUF repository `DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF`; the `heretic-llm` and `annihilation-llm` profile aliases resolve to that registry entry. GGUF serving uses llama.cpp with the `Q4_K_M` quant.
   - `register_model(spec: ModelSpec, set_as_pool_default: bool = False) -> LicenseAuditResult`: Audits `spec.license_id` via `LicenseComplianceAuditor` and raises `PermissionError` unless `verdict == LicenseVerdict.APPROVED_COMMERCIAL`.
   - `get_pool_override(pool: ModelPool) -> ModelSpec | None`: Returns the custom default model registered for `pool`.
 - **`HardwareFeasibilityPlanner`**:
@@ -58,6 +59,7 @@
 ## 4. `serving.py` — SGLang/vLLM Launch Configs & Radix Prefix Cache Simulator
 
 - **`ServingEndpointConfig.to_launch_args() -> list[str]`**: Generates CLI flags for `sglang` (`python3 -m sglang.launch_server ...`) or `vllm` (`vllm serve ...`).
+  - `RadixPrefixCacheSimulator.build_default_pool_configs()` selects llama.cpp and `Q4_K_M` for the registered GGUF model; other model specs keep SGLang configurations.
 - **`RadixPrefixCacheSimulator`**:
   - Simulates 16-token block prefix caching (`record_request(token_blocks, active_params_b)`), computing `prefix_hit_ratio`, `cumulative_hit_ratio`, and `estimated_ttft_ms`.
   - `build_default_pool_configs(models)` generates SGLang v0.5.19 configs on ports `30000..30004`.

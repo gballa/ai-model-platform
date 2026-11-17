@@ -187,12 +187,13 @@ class RadixPrefixCacheSimulator:
             is_large_moe = spec.total_params_b >= 100.0
             quant = "mxfp4" if is_large_moe else "fp8"
             tp_size = 2 if spec.vram_4bit_gb > 192.0 else 1
+            is_gguf = spec.model_id.lower().endswith("-gguf")
             configs.append(
                 ServingEndpointConfig(
-                    engine="sglang",
-                    engine_version="0.5.19",
-                    model_id=spec.model_id,
-                    quantization=quant,
+                    engine="llama_cpp" if is_gguf else "sglang",
+                    engine_version="llama.cpp" if is_gguf else "0.5.19",
+                    model_id=f"{spec.model_id}:Q4_K_M" if is_gguf else spec.model_id,
+                    quantization="Q4_K_M" if is_gguf else quant,
                     tensor_parallel_size=tp_size,
                     max_context_len=spec.context_window,
                     enable_radix_prefix_cache=True,

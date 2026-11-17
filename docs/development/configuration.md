@@ -48,7 +48,7 @@ Provide a complete, source-verified reference for all configuration dataclasses,
 
 | Field | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `engine` | `str` | *(Required)* | `"sglang"`, `"vllm"`, `"mlx_lm"`, or `"llama_cpp"`. |
+| `engine` | `str` | *(Required)* | `"sglang"`, `"vllm"`, `"mlx_lm"`, or `"llama_cpp"`. The default GGUF catalog entry selects `llama_cpp`. |
 | `engine_version` | `str` | *(Required)* | E.g., `"0.5.19"` (SGLang), `"0.28.0"` (vLLM), or `"mlx_lm"`. |
 | `model_id` | `str` | *(Required)* | Model identifier or checkpoint path. |
 | `quantization` | `str` | *(Required)* | `"fp8"`, `"mxfp4"`, `"awq_int4"`, or `"bf16"`. |
@@ -58,6 +58,8 @@ Provide a complete, source-verified reference for all configuration dataclasses,
 | `enable_chunked_prefill` | `bool` | `True` | Adds `--chunked-prefill-size=8192` (SGLang) or `--enable-chunked-prefill` (vLLM). |
 | `gpu_memory_utilization` | `float` | `0.90` | Static memory fraction (`0.90`). |
 | `port` | `int` | `30000` | HTTP serving port. |
+
+The `heretic-llm` and `annihilation-llm` model profile aliases both resolve to `DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF`. Default pool serving selects `llama.cpp` with the `Q4_K_M` quant. The upstream model card reports a 256K context window and indicates that vision requires a separate mmproj file; local inference requires llama.cpp support for this GGUF architecture.
 | `HardwareProfile` | `Enum` | Auto-detected | `APPLE_SILICON_36GB`, `SINGLE_GPU_24GB`, `WORKSTATION_MULTI_GPU`, `CLUSTER_H200_8X`. |
 
 ### 3.3 `RoutingRequest` & Thinking Token Budgets ([`layer1_intelligence/router.py`](../../src/platform_core/layer1_intelligence/router.py))
