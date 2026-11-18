@@ -58,6 +58,29 @@ class HardwareProfile(str, Enum):
 
 
 @dataclass(frozen=True)
+class ExecutionCapability:
+    """Hardware-agnostic capability abstraction (Section 1.8)."""
+
+    vram_gb: float
+    compute_capacity_score: float
+    supports_vision: bool
+    accelerator_type: str  # "apple_silicon_metal", "cuda", "cpu_only"
+
+
+class HardwareAbstractionLayer:
+    """Normalizes heterogeneous hardware features into unified capabilities."""
+
+    @staticmethod
+    def from_local_hardware(info: LocalHardwareInfo) -> ExecutionCapability:
+        return ExecutionCapability(
+            vram_gb=info.safe_model_budget_gb,
+            compute_capacity_score=info.safe_model_budget_gb * 1.5,  # Simplified metric
+            supports_vision=(info.accelerator == "apple_silicon_metal"),
+            accelerator_type=info.accelerator,
+        )
+
+
+@dataclass(frozen=True)
 class LocalHardwareInfo:
     """Detected host CPU/GPU/Unified Memory capabilities and safe inference budget."""
 

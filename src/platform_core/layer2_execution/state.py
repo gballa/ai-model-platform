@@ -291,11 +291,39 @@ class PlatformState:
         )
 
 
-class SQLiteStateCheckpointer:
-    """Durable step-level state checkpointer enabling crash recovery and time-travel replay."""
+from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass, field
+from enum import Enum
+import json
+from pathlib import Path
+import sqlite3
+import threading
+import time
+from typing import Any
 
-    def __init__(self, db_path: str | Path = ":memory:") -> None:
-        self.db_path = str(db_path)
+class StateStorageBackend(ABC):
+    """Interface for pluggable state storage backends."""
+    @abstractmethod
+    def save(self, session_id: str, lifecycle_step: int, status: str, state_json: str) -> int:
+        ...
+
+    @abstractmethod
+    def load_latest(self, session_id: str) -> str | None:
+        ...
+
+    @abstractmethod
+    def load_at_step(self, session_id: str, step: int) -> str | None:
+        ...
+
+    @abstractmethod
+    def sync_with_consensus(self, session_id: str, state_json: str) -> bool:
+        """Synchronize state with distributed consensus mechanism (ADR-0007)."""
+        ...
+
+class SQLiteStorageBackend(StateStorageBackend):
+    """SQLite implementation of StateStorageBackend."""
+    def __init__(self, db_path: str) -> None:
+        self.db_path = db_path
         self._lock = threading.RLock()
         self._conn = sqlite3.connect(self.db_path, check_same_thread=False, timeout=30.0)
         self._init_schema()
@@ -322,28 +350,19 @@ class SQLiteStateCheckpointer:
             )
             self._conn.commit()
 
-    def save_checkpoint(self, state: PlatformState) -> int:
-        """Persist a snapshot of PlatformState at the current node transition."""
-        payload = json.dumps(state.to_dict(), sort_keys=True)
+    def save(self, session_id: str, lifecycle_step: int, status: str, state_json: str) -> int:
         with self._lock:
             cursor = self._conn.execute(
                 """
                 INSERT INTO state_checkpoints (session_id, lifecycle_step, status, created_at, state_json)
                 VALUES (?, ?, ?, ?, ?)
                 """,
-                (
-                    state.session_id,
-                    int(state.current_step),
-                    state.status.value,
-                    time.time(),
-                    payload,
-                ),
+                (session_id, lifecycle_step, status, time.time(), state_json),
             )
             self._conn.commit()
             return int(cursor.lastrowid or 0)
 
-    def load_latest(self, session_id: str) -> PlatformState | None:
-        """Restore the most recent checkpoint for a given session_id (crash recovery)."""
+    def load_latest(self, session_id: str) -> str | None:
         with self._lock:
             row = self._conn.execute(
                 """
@@ -354,12 +373,9 @@ class SQLiteStateCheckpointer:
                 """,
                 (session_id,),
             ).fetchone()
-        if row is None:
-            return None
-        return PlatformState.from_dict(json.loads(row[0]))
+        return row[0] if row else None
 
-    def load_at_step(self, session_id: str, step: LifecycleStep) -> PlatformState | None:
-        """Time-travel replay: load the state checkpoint recorded at a specific lifecycle step."""
+    def load_at_step(self, session_id: str, step: int) -> str | None:
         with self._lock:
             row = self._conn.execute(
                 """
@@ -368,44 +384,35 @@ class SQLiteStateCheckpointer:
                 ORDER BY checkpoint_id DESC
                 LIMIT 1
                 """,
-                (session_id, int(step)),
+                (session_id, step),
             ).fetchone()
-        if row is None:
-            return None
-        return PlatformState.from_dict(json.loads(row[0]))
-
-    def list_history(self, session_id: str) -> list[dict[str, Any]]:
-        """Return ordered checkpoint metadata for audit and replay."""
-        with self._lock:
-            rows = self._conn.execute(
-                """
-                SELECT checkpoint_id, lifecycle_step, status, created_at
-                FROM state_checkpoints
-                WHERE session_id = ?
-                ORDER BY checkpoint_id ASC
-                """,
-                (session_id,),
-            ).fetchall()
-        return [
-            {
-                "checkpoint_id": r[0],
-                "lifecycle_step": r[1],
-                "status": r[2],
-                "created_at": r[3],
-            }
-            for r in rows
-        ]
+        return row[0] if row else None
 
     def close(self) -> None:
-        lock = getattr(self, "_lock", None)
-        if lock is not None:
-            with lock:
-                if getattr(self, "_conn", None) is not None:
-                    self._conn.close()
-                    self._conn = None  # type: ignore[assignment]
-        elif getattr(self, "_conn", None) is not None:
-            self._conn.close()
-            self._conn = None  # type: ignore[assignment]
+        with self._lock:
+            if self._conn:
+                self._conn.close()
 
-    def __del__(self) -> None:
-        self.close()
+class SQLiteStateCheckpointer:
+    """Durable step-level state checkpointer enabling crash recovery and time-travel replay."""
+
+    def __init__(self, db_path: str | Path = ":memory:") -> None:
+        self.backend = SQLiteStorageBackend(str(db_path))
+
+    def save_checkpoint(self, state: PlatformState) -> int:
+        """Persist a snapshot of PlatformState at the current node transition."""
+        payload = json.dumps(state.to_dict(), sort_keys=True)
+        return self.backend.save(state.session_id, int(state.current_step), state.status.value, payload)
+
+    def load_latest(self, session_id: str) -> PlatformState | None:
+        """Restore the most recent checkpoint for a given session_id (crash recovery)."""
+        data = self.backend.load_latest(session_id)
+        return PlatformState.from_dict(json.loads(data)) if data else None
+
+    def load_at_step(self, session_id: str, step: LifecycleStep) -> PlatformState | None:
+        """Time-travel replay: load the state checkpoint recorded at a specific lifecycle step."""
+        data = self.backend.load_at_step(session_id, int(step))
+        return PlatformState.from_dict(json.loads(data)) if data else None
+
+    def close(self) -> None:
+        self.backend.close()

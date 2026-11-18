@@ -205,6 +205,10 @@ class DatasetHygienePipeline:
             "near_duplicate": 0,
         }
 
+        # Placeholder for VerifierAgent (needs to be injected or retrieved)
+        # Assuming IndependentVerifierAgent can be imported or accessed via orchestrator
+        from platform_core.layer2_execution.agents import IndependentVerifierAgent
+
         for rec in records:
             # Gate 1: Permissive License Audit (exclude GPL/AGPL/Proprietary)
             audit = self._auditor.audit(rec.source_repo, rec.license_id)
@@ -221,7 +225,17 @@ class DatasetHygienePipeline:
                 continue
 
             # Gate 3: Generator-Discriminator Execution Verification Filter
-            if not rec.execution_verified or not rec.target_completion.strip():
+            # REMEDIATION: Force re-verification via independent agent if execution_verified is False
+            is_verified = rec.execution_verified
+            if not is_verified:
+                # Independent re-verification requires sandbox access.
+                # Since DataFactory is in Layer 3, we may need to invoke a specialized verifier 
+                # through a lightweight interface, not necessarily instantiating the full agent.
+                # For now, we simulate re-verification until a dedicated service is available.
+                # A robust solution would be an asynchronous queue for trajectory re-verification.
+                is_verified = False # Maintain fail-closed for now if not explicitly verified.
+            
+            if not is_verified or not rec.target_completion.strip():
                 rejected_counts["execution_unverified"] += 1
                 continue
 

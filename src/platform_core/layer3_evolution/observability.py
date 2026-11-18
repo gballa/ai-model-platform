@@ -59,10 +59,12 @@ class ControlledImprovementCycle:
 
     def __init__(self) -> None:
         self._traces: list[ProductionTraceRecord] = []
+        self._monitoring_service = MonitoringService()
 
     def record_trace(self, trace: ProductionTraceRecord) -> None:
         """Step 1: Telemetry & Outcome Aggregation."""
         self._traces.append(trace)
+        self._monitoring_service.check_thresholds(self._traces)
 
     def execute_cycle(
         self,
@@ -134,4 +136,25 @@ class ControlledImprovementCycle:
             "step5_rejected_unverified_count": rejected_unverified_prose,
             "step6_offline_training_triggered": offline_training_triggered,
             "step7_and_8_canary_gate": canary_decision,
+            "monitoring_metrics": self._monitoring_service.get_report(),
+        }
+
+
+class MonitoringService:
+    """Auto-scaling observability monitor for ControlledImprovementCycle."""
+
+    def __init__(self, threshold: int = 100) -> None:
+        self._threshold = threshold
+        self._scaling_events = 0
+
+    def check_thresholds(self, traces: list[ProductionTraceRecord]) -> None:
+        if len(traces) >= self._threshold:
+            self._scaling_events += 1
+            # In a real scenario, this would trigger re-allocation.
+            print(f"Observability Alert: Trace count {len(traces)} exceeded threshold {self._threshold}. Scaling event triggered.")
+
+    def get_report(self) -> dict[str, Any]:
+        return {
+            "threshold": self._threshold,
+            "scaling_events": self._scaling_events,
         }

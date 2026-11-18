@@ -98,15 +98,12 @@ class ExecutionLifecycleOrchestrator:
 
         self._registered_manifests = self._build_signed_manifests()
 
-    def close(self) -> None:
-        self.checkpointer.close()
-        self.code_graph_mcp.close()
-        self.episodic_memory.close()
-        self.vuln_intel_mcp.close()
-        self.forensics_mcp.ioc_engine.close()
-
-    def __del__(self) -> None:
-        self.close()
+    def get_session_status(self, session_id: str) -> PlatformState:
+        """Retrieve the latest state checkpoint for a session."""
+        state = self.checkpointer.load_latest(session_id)
+        if state is None:
+            raise KeyError(f"No checkpoint found for session '{session_id}'.")
+        return state
 
     def _build_signed_manifests(self) -> dict[str, MCPToolManifest]:
         raw_manifests = [

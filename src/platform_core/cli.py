@@ -87,6 +87,23 @@ def run_evaluate_blueprint(budget_usd: int = 1_800_000) -> dict[str, Any]:
     }
 
 
+def run_transparency_dashboard(session_id: str) -> dict[str, Any]:
+    """Expose taint status and task progress for a given session."""
+    orchestrator = ExecutionLifecycleOrchestrator()
+    try:
+        # In a real implementation, we would query the active session from the orchestrator
+        # or a persistence store. For now, we simulate retrieving status.
+        state = orchestrator.get_session_status(session_id)
+        return {
+            "session_id": state.session_id,
+            "taint_level": state.taint_level.value,
+            "progress_step": int(state.current_step),
+            "status": state.status.value,
+        }
+    finally:
+        orchestrator.close()
+
+
 def run_model_creation_pipeline(
     model_id: str = "Qwen3.8-27B-SWE-Cyber-v1.0",
     base_checkpoint: str = "Qwen/Qwen3.8-27B",
@@ -1057,6 +1074,9 @@ def main(argv: list[str] | None = None) -> int:
         help="Optional subset of suites (coding reasoning cyber_vuln forensics hallucination_resistance)",
     )
 
+    trans_p = sub.add_parser("transparency-dashboard", help="Expose taint status and task progress for a session")
+    trans_p.add_argument("--session-id", required=True, help="Session ID to monitor")
+
     harvest_p = sub.add_parser(
         "harvest-corpus",
         help="Harvest PDFs/books and firewall-approved URLs into RAG and optional distilled JSONL",
@@ -1392,6 +1412,8 @@ def main(argv: list[str] | None = None) -> int:
             result = DataAndVisualMCPServer.inspect_image_artifact(target)
     elif args.command == "run-benchmarks":
         result = BenchmarkSuiteRunner.run_all_suites(suites=args.suites)
+    elif args.command == "transparency-dashboard":
+        result = run_transparency_dashboard(session_id=args.session_id)
     elif args.command == "harvest-corpus":
         if not args.pdf and not args.book_dir and not args.url:
             parser.error("harvest-corpus requires at least one --pdf, --book-dir, or --url.")
