@@ -104,7 +104,7 @@ def _handle_plan(args: argparse.Namespace) -> dict[str, Any]:
         MLXQLoRATrainer,
         TorchTRLSpecAndRunner,
     )
-    from platform_core.layer3_evolution.data_factory import DatasetHygienePipeline
+    from platform_core.data_ingestion.data_factory import DatasetHygienePipeline
 
     auditor = LicenseComplianceAuditor()
     audit = auditor.audit(args.base_checkpoint, args.license)
@@ -203,7 +203,7 @@ def _handle_train(args: argparse.Namespace) -> dict[str, Any]:
         CustomModelPipeline,
         MLXQLoRATrainer,
     )
-    from platform_core.layer3_evolution.data_factory import DatasetHygienePipeline
+    from platform_core.data_ingestion.data_factory import DatasetHygienePipeline
 
     auditor = LicenseComplianceAuditor()
     audit = auditor.audit(args.model_id, args.license)

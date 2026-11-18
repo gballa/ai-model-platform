@@ -35,7 +35,7 @@ from platform_core.deploy_security.governance import (
     LicenseVerdict,
     SafetensorsValidator,
 )
-from platform_core.layer3_evolution.data_factory import (
+from platform_core.data_ingestion.data_factory import (
     DatasetHygienePipeline,
     DecompileBenchFactory,
     SWEFuseFactory,

@@ -454,7 +454,7 @@ class ModelRegistry:
                 },
             ),
             ModelSpec(
-                model_id="DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF",
+                model_id="Qwen3.8-27B-SWE-Cyber",
                 pool=ModelPool.POOL_2_SWE_CYBER,
                 architecture="Qwen3.8-27B Heretic coder derivative in GGUF format (llama.cpp)",
                 total_params_b=27.8,

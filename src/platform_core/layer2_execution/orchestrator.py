@@ -36,6 +36,7 @@ from .agents import (
     SoftwareEngineeringAgent,
 )
 from .forensics_mcp import ForensicsMCPServer, ForensicVerdict
+from .interfaces import AbstractExecutionContext
 from .mcp_tools import (
     BinRevMCPServer,
     CodeGraphMCPServer,
@@ -65,7 +66,7 @@ class ExecutionLifecycleOrchestrator:
         self,
         checkpointer: SQLiteStateCheckpointer | None = None,
         router: AdaptiveModelRouter | None = None,
-        sandbox: FirecrackerSandboxManager | None = None,
+        sandbox: AbstractExecutionContext | None = None,
         episodic_memory: BitemporalEpisodicMemory | None = None,
         signing_key: str = "sovereign-platform-mcp-hmac-key-2026",
         inference_backend: InferenceBackend | None = None,

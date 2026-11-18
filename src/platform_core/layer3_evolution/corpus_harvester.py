@@ -43,7 +43,7 @@ from platform_core.deploy_security.governance import (
     LicenseComplianceAuditor,
     LicenseVerdict,
 )
-from platform_core.layer3_evolution.data_factory import (
+from platform_core.data_ingestion.data_factory import (
     DatasetHygienePipeline,
     TrainingTrajectoryRecord,
 )

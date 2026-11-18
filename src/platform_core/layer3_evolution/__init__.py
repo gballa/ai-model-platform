@@ -18,7 +18,7 @@ from .corpus_harvester import (
     RateLimitedWebHarvester,
     TeacherDistiller,
 )
-from .data_factory import (
+from platform_core.data_ingestion.data_factory import (
     DatasetHygienePipeline,
     DecompileBenchFactory,
     SecBenchFactory,
