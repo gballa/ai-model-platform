@@ -7,6 +7,12 @@ import importlib
 # when `platform_core.layer3_evolution` is imported first.
 importlib.import_module("platform_core.layer1_intelligence.models")
 
+from .brain_engine import (
+    BrainPipelineReport,
+    BrainQueryResult,
+    BrainSyncReport,
+    ProjectBrainEngine,
+)
 from .corpus_harvester import (
     CorpusHarvesterPipeline,
     DomainChunker,
@@ -57,6 +63,9 @@ __all__ = [
     "BenchmarkSuiteRunner",
     "BitemporalEpisodicMemory",
     "BitemporalFactEdge",
+    "BrainPipelineReport",
+    "BrainQueryResult",
+    "BrainSyncReport",
     "ControlledImprovementCycle",
     "CorpusHarvesterPipeline",
     "DatasetHygienePipeline",
@@ -74,6 +83,7 @@ __all__ = [
     "PDFBookExtractor",
     "ProductionTraceRecord",
     "ProgressionEvent",
+    "ProjectBrainEngine",
     "ProjectContextManager",
     "PromptInjectionSanitizer",
     "PropBench9Suite",

@@ -98,6 +98,27 @@ class ExecutionLifecycleOrchestrator:
 
         self._registered_manifests = self._build_signed_manifests()
 
+    def close(self) -> None:
+        for attr in (
+            "checkpointer",
+            "code_graph_mcp",
+            "episodic_memory",
+            "memory",
+            "knowledge_store",
+            "vuln_intel_mcp",
+            "forensics_mcp",
+        ):
+            resource = getattr(self, attr, None)
+            if resource is not None and hasattr(resource, "close"):
+                resource.close()
+        forensics = getattr(self, "forensics_mcp", None)
+        ioc_engine = getattr(forensics, "ioc_engine", None) if forensics is not None else None
+        if ioc_engine is not None and hasattr(ioc_engine, "close"):
+            ioc_engine.close()
+
+    def __del__(self) -> None:
+        self.close()
+
     def get_session_status(self, session_id: str) -> PlatformState:
         """Retrieve the latest state checkpoint for a session."""
         state = self.checkpointer.load_latest(session_id)

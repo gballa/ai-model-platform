@@ -1,0 +1,357 @@
+{
+  "schema_version": "1.0.0",
+  "project_id": "platform-core",
+  "project_version": "1.0.0",
+  "last_synchronized": "2026-11-19",
+  "summary": "End-to-end local-first Python 3.11+ platform for creating, post-training, verifying, routing, and executing multi-agent AI models across 8 technical intelligence domains.",
+  "metrics": {
+    "source_modules": 22,
+    "test_modules": 10,
+    "unit_and_integration_tests": 205,
+    "executable_benchmark_suites": 5,
+    "supported_domains": 8,
+    "model_pools": 4,
+    "specialist_agents": 6,
+    "mcp_servers": 6,
+    "mcp_tools_clean": 18,
+    "mcp_tools_tainted": 17,
+    "cli_subcommands": 22,
+    "workspace_skills": 5,
+    "adrs": 9,
+    "architectural_invariants": 7
+  },
+  "nodes": [
+    {
+      "id": "cli.main",
+      "label": "Unified CLI (platform-cli)",
+      "category": "entrypoint",
+      "layer": "CLI",
+      "path": "src/platform_core/cli.py",
+      "summary": "22 subcommands exposing blueprint ROI, custom model post-training, scratch SLM training, Heretic refusal abliteration, Cold-Fusion multi-model merging, Project Brain RAG/bitemporal querying and SLM pipeline, corpus harvesting, 10-step domain workflows, forensics, vuln intel, benchmarks, and Antigravity SDK stdio bridge.",
+      "exports": ["build_parser", "main"]
+    },
+    {
+      "id": "l1.models",
+      "label": "4-Pool ModelRegistry & Hardware Planner",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/models.py",
+      "summary": "Manages 4 specialized open-weight model pools, hardware profiling (Apple Silicon MLX & Multi-GPU), feasibility planning, and CapEx vs API break-even ROI.",
+      "exports": ["ModelRegistry", "ModelPool", "ModelSpec", "ThinkingMode", "HardwareProfile", "LocalHardwareDetector", "HardwareFeasibilityPlanner", "HardwareBreakEvenPlanner"]
+    },
+    {
+      "id": "l1.router",
+      "label": "AdaptiveModelRouter & TTS@N Pruner",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/router.py",
+      "summary": "Routes 8 domains to optimal model pools with entropy-bounded thinking caps (NON_THINK=0, THINK_HIGH=512..1024, THINK_MAX=2048) and early-stopping BestOfNVerifierPruner.",
+      "exports": ["AdaptiveModelRouter", "BestOfNVerifierPruner", "RoutingRequest", "RoutingDecision", "CandidateRollout"]
+    },
+    {
+      "id": "l1.inference",
+      "label": "Inference Backends & Memory Guard",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/inference.py",
+      "summary": "Local-first OpenAI-compatible HTTP client, Apple Silicon MLX backend, DeterministicMockBackend, 82% RAM residency guard, and sovereign license-verified downloader.",
+      "exports": ["OpenAICompatibleClient", "MLXLocalBackend", "DeterministicMockBackend", "MemoryResidencyGuard", "ModelDownloadManager"]
+    },
+    {
+      "id": "l1.serving",
+      "label": "Serving Config & Radix Prefix Cache",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/serving.py",
+      "summary": "Generates SGLang, vLLM, mlx_lm, and llama.cpp serving flags, probes endpoint health, and simulates RadixAttention prefix cache savings.",
+      "exports": ["ServingEndpointConfig", "ServingHealthChecker", "RadixPrefixCacheSimulator"]
+    },
+    {
+      "id": "l1.training",
+      "label": "5-Stage CustomModelPipeline & Oracles",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/training.py",
+      "summary": "Executes CPT -> SFT -> MOPD -> GRPO/RLVR -> DPO post-training with deterministic SWECyberRewardOracle and BinRevDecompileRewardOracle (DWARF byte-interval IoU).",
+      "exports": ["CustomModelPipeline", "MLXQLoRATrainer", "TorchTRLSpecAndRunner", "SWECyberRewardOracle", "BinRevDecompileRewardOracle", "GRPOTrainer", "MOPDDistiller", "DPOTrainer"]
+    },
+    {
+      "id": "l1.scratch",
+      "label": "Strategy Advisor & Scratch SLM Trainer",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/scratch_trainer.py",
+      "summary": "Advises between RAG, QLoRA, multi-GPU post-training, and from-scratch SLMs; trains byte-level BPE tokenizers and compact causal Transformer SLMs (micro, 10M-350M) to verified Safetensors.",
+      "exports": ["CreationStrategyAdvisor", "ModelCreationPath", "BytePairTokenizer", "ScratchSLMConfig", "CompactTransformerSLMTrainer", "ScratchSLMArtifact"]
+    },
+    {
+      "id": "l1.heretic",
+      "label": "Heretic Abliterator, GAIN Scheduler, Cold-Fusion Merger & IMatrix Calibrator",
+      "category": "layer1_intelligence",
+      "layer": "Layer 1",
+      "path": "src/platform_core/layer1_intelligence/heretic.py",
+      "summary": "Implements rank-k refusal subspace abliteration with KL-divergence bounding, GAIN dynamic per-sample learning rate & GRPO advantage scheduling, Cold-Fusion DARE-TIES/SLERP multi-model Safetensors merging, and IMatrix activation-aware GGUF/MLX quantization calibration.",
+      "exports": ["HereticConfig", "AbliterationLayerResult", "HereticAbliterationReport", "HereticAbliterator", "GAINSampleWeight", "GAINAdaptiveScheduler", "ColdFusionMergeConfig", "ColdFusionMergeReport", "ColdFusionModelMerger", "ImatrixCalibrationReport", "ImatrixQuantizationCalibrator"]
+    },
+    {
+      "id": "l2.orchestrator",
+      "label": "10-Step ExecutionLifecycleOrchestrator",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/orchestrator.py",
+      "summary": "Coordinates the 10-step verified execution state machine across all 8 domains with automatic taint propagation, CoW rollback retries, and epistemic ledger commits.",
+      "exports": ["ExecutionLifecycleOrchestrator", "LifecycleStep", "WorkflowExecutionReport"]
+    },
+    {
+      "id": "l2.agents",
+      "label": "6 Specialist Agents & SecVerifier Dual-Gate",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/agents.py",
+      "summary": "Enforces Executor (can_mark_completed=False) vs. IndependentVerifierAgent (can_mark_completed=True) separation and multi-turn AgentToolLoop.",
+      "exports": ["LeadOrchestratorAgent", "SoftwareEngineeringAgent", "ReverseEngineeringAgent", "DefensiveCyberAgent", "MultimodalDataAgent", "IndependentVerifierAgent", "AgentToolLoop"]
+    },
+    {
+      "id": "l2.state",
+      "label": "PlatformState, Epistemic Ledger & WAL Checkpointer",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/state.py",
+      "summary": "Tracks task status, TAINTED_UNTRUSTED propagation, FACT/HYPOTHESIS/UNCERTAIN epistemic claims, and thread-safe SQLite WAL time-travel checkpoints.",
+      "exports": ["PlatformState", "TaskStatus", "TaintLevel", "EpistemicStatus", "EpistemicClaim", "EpistemicAssessment", "SQLiteStateCheckpointer"]
+    },
+    {
+      "id": "l2.sandbox",
+      "label": "FirecrackerSandboxManager & <15ms CoW Rollback",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/sandbox.py",
+      "summary": "Provides isolated sandbox execution, 24-syscall seccomp profile, secret env stripping, symlink-safe sync-back, and <15ms Copy-on-Write snapshot restore.",
+      "exports": ["FirecrackerSandboxManager", "CoWSnapshot", "SandboxExecutionResult", "ALLOWED_SECCOMP_SYSCALLS"]
+    },
+    {
+      "id": "l2.mcp_core",
+      "label": "Core Deterministic MCP Servers (Code, BinRev, Cyber, Visual)",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/mcp_tools.py",
+      "summary": "4 deterministic MCP servers: 3-tier SQLite code graph, CFG decompilation oracle, Python AST taint SAST scanner, and finite-sample entropy / PNG-JPEG-PDF / Kaitai visual analyzer.",
+      "exports": ["CodeGraphMCPServer", "BinRevMCPServer", "DefensiveCyberMCPServer", "DataAndVisualMCPServer"]
+    },
+    {
+      "id": "l2.mcp_vuln",
+      "label": "VulnIntelMCPServer (OSV / NVD / KEV / EPSS)",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/vuln_intel_mcp.py",
+      "summary": "Offline-capable SQLite vulnerability mirror with CISA KEV and FIRST EPSS enrichment, Rules-of-Engagement scope enforcement, and tainted live-sync blocking.",
+      "exports": ["VulnIntelMCPServer", "AuthorizationScope", "VulnFindingClassification", "VulnerabilityIntelligenceRecord"]
+    },
+    {
+      "id": "l2.mcp_forensics",
+      "label": "ForensicsMCPServer & Stix2IocEngine",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/forensics_mcp.py",
+      "summary": "Non-destructive iOS, Android, and Host forensic acquisition triage with STIX 2.1 indicator matching, 64-hex SHA-256 anti-fabrication guards, and visibility_limitations tracking.",
+      "exports": ["ForensicsMCPServer", "Stix2IocEngine", "ForensicVerdict", "ForensicFinding", "ForensicAssessment"]
+    },
+    {
+      "id": "l2.agy_bridge",
+      "label": "Google Antigravity SDK & Stdio MCP Bridge",
+      "category": "layer2_execution",
+      "layer": "Layer 2",
+      "path": "src/platform_core/layer2_execution/agy_sdk_bridge.py",
+      "summary": "Discovers workspace skills with symlink rejection, serves 18 tools over JSON-RPC 2.0 stdio, and runs LiteRT/LocalOpenAI agents gated by IndependentVerifierAgent.",
+      "exports": ["AgySkillDiscovery", "AgyStdioMCPBridge", "AgyLocalOrchestrator", "AgyLocalAgentSpec", "AgyExecutionResult"]
+    },
+    {
+      "id": "l3.memory",
+      "label": "BitemporalEpisodicMemory & 200K HybridKnowledgeStore",
+      "category": "layer3_evolution",
+      "layer": "Layer 3",
+      "path": "src/platform_core/layer3_evolution/memory.py",
+      "summary": "Thread-safe WAL SQLite Graphiti/GAM bitemporal memory, 200K-token DIRECT_PREFIX_CACHE vs FTS5+Vector RRF knowledge store, and token-budgeted ProjectContextManager.",
+      "exports": ["BitemporalEpisodicMemory", "HybridKnowledgeStore", "ProjectContextManager", "BitemporalFactEdge", "ProgressionEvent"]
+    },
+    {
+      "id": "l3.harvester",
+      "label": "CorpusHarvesterPipeline & TeacherDistiller",
+      "category": "layer3_evolution",
+      "layer": "Layer 3",
+      "path": "src/platform_core/layer3_evolution/corpus_harvester.py",
+      "summary": "Extracts PDF books, Markdown docs, and firewall-gated web pages with PromptInjectionSanitizer, domain-aware chunking, and teacher distillation.",
+      "exports": ["CorpusHarvesterPipeline", "PDFBookExtractor", "RateLimitedWebHarvester", "PromptInjectionSanitizer", "DomainChunker", "TeacherDistiller"]
+    },
+    {
+      "id": "l3.data_factory",
+      "label": "Synthetic Data Factories & 4-Gate Hygiene",
+      "category": "layer3_evolution",
+      "layer": "Layer 3",
+      "path": "src/platform_core/data_ingestion/data_factory.py",
+      "summary": "Synthesizes SWE, Cyber, and BinRev training trajectories and enforces 4-gate hygiene (execution verification, 13-gram benchmark decontamination, MinHash LSH dedup, license audit).",
+      "exports": ["SWEFuseFactory", "SecBenchFactory", "DecompileBenchFactory", "DatasetHygienePipeline"]
+    },
+    {
+      "id": "l3.evaluation",
+      "label": "PropBench-9 & Executable BenchmarkSuiteRunner",
+      "category": "layer3_evolution",
+      "layer": "Layer 3",
+      "path": "src/platform_core/layer3_evolution/evaluation.py",
+      "summary": "Runs 5 live deterministic benchmark suites across SWE, Cyber, VulnIntel, Forensics, and BinRev/Protocol/Visual and evaluates 95% CI pass@k, pass^4, and Canary Gate promotion.",
+      "exports": ["PropBench9Suite", "BenchmarkEvaluator", "BenchmarkSuiteRunner", "CanaryGateVerdict"]
+    },
+    {
+      "id": "l3.observability",
+      "label": "8-Step ControlledImprovementCycle",
+      "category": "layer3_evolution",
+      "layer": "Layer 3",
+      "path": "src/platform_core/layer3_evolution/observability.py",
+      "summary": "Closes the self-improvement loop from production trace telemetry through root-cause bucketing, decontamination, retraining, and canary promotion.",
+      "exports": ["ControlledImprovementCycle", "ProductionTraceRecord", "FailureRootCauseBucket"]
+    },
+    {
+      "id": "l3.brain_engine",
+      "label": "ProjectBrainEngine & Heretic Brain SLM Pipeline",
+      "category": "layer3_evolution",
+      "layer": "Layer 3",
+      "path": "src/platform_core/layer3_evolution/brain_engine.py",
+      "summary": "Synchronizes .agents/brain/ into HybridKnowledgeStore and BitemporalEpisodicMemory, supports unified RAG + bitemporal querying, and executes the Brain -> GAIN -> Heretic Abliteration -> Cold-Fusion Merge -> IMatrix SLM pipeline.",
+      "exports": ["ProjectBrainEngine", "BrainSyncReport", "BrainQueryResult", "BrainPipelineReport"]
+    },
+    {
+      "id": "sec.governance",
+      "label": "Safetensors, License, HMAC & Sandbox Governance",
+      "category": "deploy_security",
+      "layer": "Security",
+      "path": "src/platform_core/deploy_security/governance.py",
+      "summary": "Validates zero-pickle Safetensors checkpoints, enforces permissive SPDX licenses, signs HMAC-SHA256 tool manifests, and generates Squid firewall & K8s agent-sandbox manifests.",
+      "exports": ["SafetensorsValidator", "LicenseComplianceAuditor", "SignedManifestVerifier", "CyberGymFirewall", "K8sAgentSandboxGenerator"]
+    }
+  ],
+  "edges": [
+    {"source": "cli.main", "target": "l2.orchestrator", "relation": "invokes_workflow"},
+    {"source": "cli.main", "target": "l1.training", "relation": "invokes_post_training"},
+    {"source": "cli.main", "target": "l1.scratch", "relation": "invokes_scratch_slm_and_advisor"},
+    {"source": "cli.main", "target": "l1.heretic", "relation": "invokes_heretic_and_cold_fusion"},
+    {"source": "cli.main", "target": "l3.brain_engine", "relation": "invokes_brain_query_and_pipeline"},
+    {"source": "cli.main", "target": "l3.harvester", "relation": "invokes_corpus_harvest"},
+    {"source": "cli.main", "target": "l2.agy_bridge", "relation": "invokes_agy_and_mcp_stdio"},
+    {"source": "cli.main", "target": "l3.evaluation", "relation": "invokes_benchmarks"},
+    {"source": "l2.orchestrator", "target": "l1.models", "relation": "resolves_model_pool"},
+    {"source": "l2.orchestrator", "target": "l1.router", "relation": "routes_domain_and_thinking_mode"},
+    {"source": "l2.orchestrator", "target": "l2.agents", "relation": "dispatches_executor_and_verifier"},
+    {"source": "l2.orchestrator", "target": "l2.state", "relation": "checkpoints_10_steps"},
+    {"source": "l2.orchestrator", "target": "l2.sandbox", "relation": "manages_cow_snapshots"},
+    {"source": "l2.orchestrator", "target": "l3.memory", "relation": "retrieves_and_commits_bitemporal_facts"},
+    {"source": "l2.orchestrator", "target": "sec.governance", "relation": "mints_hmac_manifests_and_audits"},
+    {"source": "l2.agents", "target": "l1.inference", "relation": "executes_tool_loop"},
+    {"source": "l2.agents", "target": "l2.mcp_core", "relation": "calls_deterministic_tools"},
+    {"source": "l2.agents", "target": "l2.mcp_vuln", "relation": "calls_vuln_intel_tools"},
+    {"source": "l2.agents", "target": "l2.mcp_forensics", "relation": "calls_forensics_tools"},
+    {"source": "l2.agy_bridge", "target": "l2.agents", "relation": "enforces_independent_verifier_gate"},
+    {"source": "l2.agy_bridge", "target": "l2.mcp_core", "relation": "bridges_jsonrpc_stdio"},
+    {"source": "l2.agy_bridge", "target": "l2.mcp_vuln", "relation": "bridges_jsonrpc_stdio"},
+    {"source": "l2.agy_bridge", "target": "l2.mcp_forensics", "relation": "bridges_jsonrpc_stdio"},
+    {"source": "l3.harvester", "target": "l3.memory", "relation": "ingests_sanitized_chunks"},
+    {"source": "l3.harvester", "target": "l3.data_factory", "relation": "distills_hygiene_checked_jsonl"},
+    {"source": "l3.harvester", "target": "sec.governance", "relation": "enforces_cybergym_firewall"},
+    {"source": "l1.training", "target": "l3.data_factory", "relation": "runs_4_gate_hygiene"},
+    {"source": "l1.training", "target": "sec.governance", "relation": "validates_safetensors_and_license"},
+    {"source": "l1.scratch", "target": "sec.governance", "relation": "validates_safetensors_header_pad"},
+    {"source": "l1.heretic", "target": "sec.governance", "relation": "validates_abliterated_and_merged_safetensors"},
+    {"source": "l3.brain_engine", "target": "l3.memory", "relation": "syncs_rag_and_bitemporal_facts"},
+    {"source": "l3.brain_engine", "target": "l1.scratch", "relation": "trains_domain_specialist_slms"},
+    {"source": "l3.brain_engine", "target": "l1.heretic", "relation": "runs_gain_heretic_cold_fusion_imatrix"},
+    {"source": "l3.observability", "target": "l3.evaluation", "relation": "evaluates_canary_gate"},
+    {"source": "l3.observability", "target": "l3.data_factory", "relation": "decontaminates_production_traces"}
+  ],
+  "invariants": [
+    {
+      "id": "INV-01",
+      "title": "Executor vs. Verifier Separation (SecVerifier Gate)",
+      "rule": "Executor agents always have can_mark_completed=False; only IndependentVerifierAgent (can_mark_completed=True) can set TaskStatus.COMPLETED.",
+      "enforced_in": ["src/platform_core/layer2_execution/agents.py", "src/platform_core/layer2_execution/orchestrator.py", "src/platform_core/layer2_execution/agy_sdk_bridge.py"]
+    },
+    {
+      "id": "INV-02",
+      "title": "Taint Propagation (TAINTED_UNTRUSTED)",
+      "rule": "Sessions ingesting external repos or untrusted binaries at Step 1 are marked TAINTED_UNTRUSTED, stripping network_egress and admin_deploy and blocking vuln_sync_live_feeds.",
+      "enforced_in": ["src/platform_core/layer2_execution/state.py", "src/platform_core/layer2_execution/orchestrator.py", "src/platform_core/layer2_execution/vuln_intel_mcp.py"]
+    },
+    {
+      "id": "INV-03",
+      "title": "200K-Token Hybrid Knowledge Rule",
+      "rule": "HybridKnowledgeStore.retrieve returns DIRECT_PREFIX_CACHE when total corpus tokens < 200,000, and switches to HYBRID_PGVECTORSCALE_SEARCH at >= 200,000 tokens.",
+      "enforced_in": ["src/platform_core/layer3_evolution/memory.py"]
+    },
+    {
+      "id": "INV-04",
+      "title": "Finite-Sample Entropy & DWARF Byte-Interval Struct IoU",
+      "rule": "classify_transformation normalizes Shannon entropy by min(8.0, log2(N)); compute_struct_layout_iou computes byte-interval [offset, offset + size) overlap IoU.",
+      "enforced_in": ["src/platform_core/layer2_execution/mcp_tools.py", "src/platform_core/layer1_intelligence/training.py"]
+    },
+    {
+      "id": "INV-05",
+      "title": "Forensic Anti-Fabrication & Epistemic Separation",
+      "rule": "CONFIRMED_IOC_MATCH requires an existing artifact_path and 64-hex artifact_sha256; partial acquisitions record visibility_limitations; Step 10 separates FACT, HYPOTHESIS, and UNCERTAIN claims.",
+      "enforced_in": ["src/platform_core/layer2_execution/forensics_mcp.py", "src/platform_core/layer2_execution/state.py"]
+    },
+    {
+      "id": "INV-06",
+      "title": "Workspace Markdown Link Portability & 5 Canonical Skills",
+      "rule": "All checked-in Markdown files use repository-relative links only; .agents/skills/ houses the 5 canonical discoverable skills with --output and positive --limit flags.",
+      "enforced_in": ["AGENTS.md", "src/platform_core/layer2_execution/agy_sdk_bridge.py"]
+    },
+    {
+      "id": "INV-07",
+      "title": "Fail-Closed Taint Defaults & Safetensors <Q Header Safety",
+      "rule": "CLI/skill agent runners default to session_tainted=True; distilled trajectories default to execution_verified=False; Safetensors headers apply header_pad to avoid <Q pickle magic collisions.",
+      "enforced_in": ["src/platform_core/cli.py", "src/platform_core/layer1_intelligence/scratch_trainer.py", "src/platform_core/deploy_security/governance.py"]
+    }
+  ],
+  "bitemporal_facts": [
+    {
+      "subject": "platform_core",
+      "predicate": " enforces_verification_gate ",
+      "object_val": "IndependentVerifierAgent (can_mark_completed=True)",
+      "commit_sha": "v1.0.0",
+      "valid_from": 1700000000.0
+    },
+    {
+      "subject": "HybridKnowledgeStore",
+      "predicate": "switches_to_hybrid_vector_search_at_tokens",
+      "object_val": "200000",
+      "commit_sha": "v1.0.0",
+      "valid_from": 1700000000.0
+    },
+    {
+      "subject": "LicenseComplianceAuditor",
+      "predicate": "allows_spdx_licenses",
+      "object_val": "Apache-2.0, MIT, BSD-3-Clause",
+      "commit_sha": "v1.0.0",
+      "valid_from": 1700000000.0
+    },
+    {
+      "subject": "FirecrackerSandboxManager",
+      "predicate": "restores_cow_snapshots_under_ms",
+      "object_val": "15.0",
+      "commit_sha": "v1.0.0",
+      "valid_from": 1700000000.0
+    },
+    {
+      "subject": "SafetensorsValidator",
+      "predicate": "guards_little_endian_header_lengths",
+      "object_val": "640, 896, 1152, 1408 via header_pad",
+      "commit_sha": "v1.0.0",
+      "valid_from": 1700000000.0
+    },
+    {
+      "subject": "AgyStdioMCPBridge",
+      "predicate": "exposes_deterministic_tools",
+      "object_val": "18 clean tools / 17 tainted tools across 6 MCP servers",
+      "commit_sha": "v1.0.0",
+      "valid_from": 1700000000.0
+    }
+  ]
+}

@@ -1284,6 +1284,83 @@ def main(argv: list[str] | None = None) -> int:
     mcp_p.add_argument("--vuln-db-path", default=":memory:", help="Path to SQLite vulnerability mirror")
     _add_taint_flags(mcp_p, default_tainted=True)
 
+    bq_p = sub.add_parser(
+        "brain-query",
+        help="Synchronize and query the Project Brain knowledge graph, Hybrid RAG, and bitemporal facts",
+    )
+    bq_p.add_argument("--query", required=True, help="Search query for Project Brain")
+    bq_p.add_argument("--brain-dir", default=".agents/brain", help="Path to Project Brain directory")
+    bq_p.add_argument("--top-k", type=int, default=5, help="Maximum RAG chunks to retrieve (default: 5)")
+    bq_p.add_argument(
+        "--as-of",
+        type=float,
+        default=None,
+        help="Optional Unix timestamp for point-in-time bitemporal fact query",
+    )
+    bq_p.add_argument("--output", default=None, help="Optional JSON output file path")
+
+    ha_p = sub.add_parser(
+        "heretic-abliterate",
+        help="Run Heretic Arbitrary-Rank Ablation (ARA) on a .safetensors checkpoint under a KL budget",
+    )
+    ha_p.add_argument("--input-safetensors", required=True, help="Input .safetensors checkpoint path")
+    ha_p.add_argument("--output-safetensors", required=True, help="Output abliterated .safetensors path")
+    ha_p.add_argument("--rank", type=int, default=2, help="Refusal subspace rank k (default: 2)")
+    ha_p.add_argument(
+        "--max-kl",
+        type=float,
+        default=0.05,
+        help="Maximum KL-divergence budget (default: 0.05)",
+    )
+    ha_p.add_argument("--output", default=None, help="Optional JSON report path")
+
+    cfm_p = sub.add_parser(
+        "cold-fusion-merge",
+        help="Merge multiple .safetensors checkpoints via Cold-Fusion DARE-TIES or SLERP and optional IMatrix plan",
+    )
+    cfm_p.add_argument(
+        "--checkpoints",
+        nargs="+",
+        required=True,
+        help="Two or more .safetensors checkpoint paths to merge",
+    )
+    cfm_p.add_argument("--output-safetensors", required=True, help="Output merged .safetensors path")
+    cfm_p.add_argument(
+        "--method",
+        choices=["dare_ties", "slerp"],
+        default="dare_ties",
+        help="Cold-Fusion merge method (default: dare_ties)",
+    )
+    cfm_p.add_argument("--drop-rate", type=float, default=0.5, help="DARE drop rate in [0.0, 0.95) (default: 0.5)")
+    cfm_p.add_argument("--density", type=float, default=0.6, help="TIES magnitude density in (0.0, 1.0] (default: 0.6)")
+    cfm_p.add_argument(
+        "--quant-type",
+        choices=["Q4_K_M", "Q4_K_S", "Q5_K_M", "Q8_0", "IQ4_XS"],
+        default="Q5_K_M",
+        help="Target GGUF/MLX quantization type when --output-dir is provided (default: Q5_K_M)",
+    )
+    cfm_p.add_argument("--output-dir", default=None, help="Optional directory for IMatrix calibration artifacts")
+    cfm_p.add_argument("--output", default=None, help="Optional JSON report path")
+
+    bp_p = sub.add_parser(
+        "brain-pipeline",
+        help="Run the end-to-end Project Brain Heretic + GAIN + Cold-Fusion + IMatrix model creation pipeline",
+    )
+    bp_p.add_argument("--output-dir", required=True, help="Directory for trained, abliterated, and merged models")
+    bp_p.add_argument("--model-id", default="heretic-brain-slm", help="Base model identifier (default: heretic-brain-slm)")
+    bp_p.add_argument("--brain-dir", default=".agents/brain", help="Path to Project Brain directory")
+    bp_p.add_argument("--domain", default="swe", help="Primary specialist domain (default: swe)")
+    bp_p.add_argument("--steps", type=int, default=10, help="Training steps per specialist SLM (default: 10)")
+    bp_p.add_argument("--rank", type=int, default=2, help="Heretic refusal subspace rank (default: 2)")
+    bp_p.add_argument("--drop-rate", type=float, default=0.5, help="Cold-Fusion DARE drop rate (default: 0.5)")
+    bp_p.add_argument(
+        "--quant-type",
+        choices=["Q4_K_M", "Q4_K_S", "Q5_K_M", "Q8_0", "IQ4_XS"],
+        default="Q5_K_M",
+        help="IMatrix quantization target (default: Q5_K_M)",
+    )
+    bp_p.add_argument("--output", default=None, help="Optional JSON report path")
+
     args = parser.parse_args(argv)
 
     if args.command == "evaluate-blueprint":
@@ -1500,6 +1577,77 @@ def main(argv: list[str] | None = None) -> int:
             vuln_db_path=args.vuln_db_path,
             session_tainted=args.session_tainted,
         )
+    elif args.command == "brain-query":
+        from platform_core.layer3_evolution.brain_engine import ProjectBrainEngine
+
+        engine = ProjectBrainEngine(brain_dir=args.brain_dir)
+        try:
+            q_res = engine.query_brain(args.query, top_k=args.top_k, as_of=args.as_of)
+            result = q_res.to_dict()
+        finally:
+            engine.close()
+        if args.output is not None:
+            result["output_path"] = _write_json_output(args.output, result)
+    elif args.command == "heretic-abliterate":
+        from platform_core.layer1_intelligence.heretic import HereticAbliterator, HereticConfig
+
+        ab_rep = HereticAbliterator().abliterate_safetensors(
+            args.input_safetensors,
+            args.output_safetensors,
+            HereticConfig(rank=args.rank, max_kl_divergence=args.max_kl),
+        )
+        result = ab_rep.to_dict() if hasattr(ab_rep, "to_dict") else dict(ab_rep.__dict__)
+        if args.output is not None:
+            result["output_path"] = _write_json_output(args.output, result)
+    elif args.command == "cold-fusion-merge":
+        from platform_core.layer1_intelligence.heretic import (
+            ColdFusionMergeConfig,
+            ColdFusionModelMerger,
+            DEFAULT_HARMFUL_PROBES,
+            DEFAULT_HARMLESS_PROBES,
+            ImatrixQuantizationCalibrator,
+        )
+
+        merge_rep = ColdFusionModelMerger().merge_safetensors(
+            args.checkpoints,
+            args.output_safetensors,
+            ColdFusionMergeConfig(
+                method=args.method,
+                drop_rate=args.drop_rate,
+                density=args.density,
+            ),
+        )
+        result = merge_rep.to_dict()
+        if args.output_dir is not None:
+            cal_texts = list(DEFAULT_HARMLESS_PROBES) + list(DEFAULT_HARMFUL_PROBES)
+            imatrix_rep = ImatrixQuantizationCalibrator().calibrate_and_build_gguf_plan(
+                args.output_safetensors,
+                cal_texts,
+                args.output_dir,
+                quant_type=args.quant_type,
+            )
+            result["imatrix_report"] = imatrix_rep.to_dict()
+        if args.output is not None:
+            result["output_path"] = _write_json_output(args.output, result)
+    elif args.command == "brain-pipeline":
+        from platform_core.layer3_evolution.brain_engine import ProjectBrainEngine
+
+        engine = ProjectBrainEngine(brain_dir=args.brain_dir)
+        try:
+            pipe_rep = engine.run_brain_training_pipeline(
+                output_dir=args.output_dir,
+                model_id=args.model_id,
+                domain=args.domain,
+                steps=args.steps,
+                abliteration_rank=args.rank,
+                dare_drop_rate=args.drop_rate,
+                quant_type=args.quant_type,
+            )
+            result = pipe_rep.to_dict()
+        finally:
+            engine.close()
+        if args.output is not None:
+            result["output_path"] = _write_json_output(args.output, result)
     else:
         return 1
 

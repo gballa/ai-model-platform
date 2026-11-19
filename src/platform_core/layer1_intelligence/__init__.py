@@ -1,5 +1,18 @@
 """Layer 1: Intelligence & Model Creation Package."""
 
+from .heretic import (
+    AbliterationLayerResult,
+    ColdFusionMergeConfig,
+    ColdFusionMergeReport,
+    ColdFusionModelMerger,
+    GAINAdaptiveScheduler,
+    GAINSampleWeight,
+    HereticAbliterationReport,
+    HereticAbliterator,
+    HereticConfig,
+    ImatrixCalibrationReport,
+    ImatrixQuantizationCalibrator,
+)
 from .inference import (
     ChatMessage,
     DeterministicMockBackend,
@@ -69,6 +82,7 @@ from .training import (
 )
 
 __all__ = [
+    "AbliterationLayerResult",
     "AdaptiveModelRouter",
     "BestOfNVerifierPruner",
     "BinRevDecompileInput",
@@ -76,6 +90,9 @@ __all__ = [
     "BytePairTokenizer",
     "CandidateRollout",
     "ChatMessage",
+    "ColdFusionMergeConfig",
+    "ColdFusionMergeReport",
+    "ColdFusionModelMerger",
     "CompactTransformerSLMTrainer",
     "CreationStrategyAdvisor",
     "CustomModelArtifact",
@@ -86,11 +103,18 @@ __all__ = [
     "DPOTrainer",
     "DeterministicMockBackend",
     "DistributedTrainingSpecBuilder",
+    "GAINAdaptiveScheduler",
+    "GAINSampleWeight",
     "GRPORolloutSample",
     "GRPOStepMetrics",
     "GRPOTrainer",
     "HardwareFeasibilityPlanner",
     "HardwareProfile",
+    "HereticAbliterationReport",
+    "HereticAbliterator",
+    "HereticConfig",
+    "ImatrixCalibrationReport",
+    "ImatrixQuantizationCalibrator",
     "InferenceBackend",
     "InferenceRequest",
     "InferenceResponse",

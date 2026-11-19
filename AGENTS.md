@@ -22,6 +22,10 @@
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli train-scratch-slm --model-id <id> --corpus-file <file> --output-dir <dir>`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-agy-local --prompt <prompt> [--runtime {local_openai,litert}]`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli mcp-stdio-bridge [--server <name>]`
+  - `PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-query --query <query> [--brain-dir .agents/brain] [--top-k 5] [--as-of <timestamp>] [--output <json>]`
+  - `PYTHONPATH=src .venv/bin/python -m platform_core.cli heretic-abliterate --input-safetensors <in> --output-safetensors <out> [--rank 2] [--max-kl 0.05] [--output <json>]`
+  - `PYTHONPATH=src .venv/bin/python -m platform_core.cli cold-fusion-merge --checkpoints <paths...> --output-safetensors <out> [--method {dare_ties,slerp}] [--quant-type {Q4_K_M,Q4_K_S,Q5_K_M,Q8_0,IQ4_XS}]`
+  - `PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-pipeline --output-dir <dir> [--model-id heretic-brain-slm] [--domain swe] [--quant-type {Q4_K_M,Q4_K_S,Q5_K_M,Q8_0,IQ4_XS}]`
   - `PYTHONPATH=src .venv/bin/python examples/custom_model_end_to_end.py`
 
 ## 2. Architectural & Domain Invariants

@@ -10,6 +10,7 @@ Implements Section 3.2 & 10.3:
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 import json
@@ -291,16 +292,6 @@ class PlatformState:
         )
 
 
-from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass, field
-from enum import Enum
-import json
-from pathlib import Path
-import sqlite3
-import threading
-import time
-from typing import Any
-
 class StateStorageBackend(ABC):
     """Interface for pluggable state storage backends."""
     @abstractmethod
@@ -388,16 +379,69 @@ class SQLiteStorageBackend(StateStorageBackend):
             ).fetchone()
         return row[0] if row else None
 
-    def close(self) -> None:
+    def sync_with_consensus(self, session_id: str, state_json: str) -> bool:
+        if not isinstance(session_id, str) or not session_id.strip():
+            raise ValueError("session_id must be a non-empty string")
+        if not isinstance(state_json, str) or not state_json.strip():
+            raise ValueError("state_json must be a non-empty JSON string")
+        try:
+            parsed = json.loads(state_json)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("state_json must be valid JSON") from exc
+        if not isinstance(parsed, dict):
+            raise ValueError("state_json must decode to a JSON object")
+
         with self._lock:
-            if self._conn:
-                self._conn.close()
+            if self._conn is None:
+                raise RuntimeError("SQLite connection is closed")
+            self._conn.execute("SELECT 1 FROM state_checkpoints WHERE session_id = ? LIMIT 1", (session_id,)).fetchone()
+            if self.db_path != ":memory:":
+                self._conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
+            self._conn.commit()
+            return True
+
+    def list_history(self, session_id: str) -> list[dict[str, Any]]:
+        """Return ordered checkpoint metadata for audit and replay."""
+        with self._lock:
+            rows = self._conn.execute(
+                """
+                SELECT checkpoint_id, lifecycle_step, status, created_at
+                FROM state_checkpoints
+                WHERE session_id = ?
+                ORDER BY checkpoint_id ASC
+                """,
+                (session_id,),
+            ).fetchall()
+        return [
+            {
+                "checkpoint_id": r[0],
+                "lifecycle_step": r[1],
+                "status": r[2],
+                "created_at": r[3],
+            }
+            for r in rows
+        ]
+
+    def close(self) -> None:
+        lock = getattr(self, "_lock", None)
+        if lock is not None:
+            with lock:
+                if getattr(self, "_conn", None) is not None:
+                    self._conn.close()
+                    self._conn = None  # type: ignore[assignment]
+        elif getattr(self, "_conn", None) is not None:
+            self._conn.close()
+            self._conn = None  # type: ignore[assignment]
+
+    def __del__(self) -> None:
+        self.close()
 
 class SQLiteStateCheckpointer:
     """Durable step-level state checkpointer enabling crash recovery and time-travel replay."""
 
     def __init__(self, db_path: str | Path = ":memory:") -> None:
-        self.backend = SQLiteStorageBackend(str(db_path))
+        self.db_path = str(db_path)
+        self.backend = SQLiteStorageBackend(self.db_path)
 
     def save_checkpoint(self, state: PlatformState) -> int:
         """Persist a snapshot of PlatformState at the current node transition."""
@@ -414,5 +458,18 @@ class SQLiteStateCheckpointer:
         data = self.backend.load_at_step(session_id, int(step))
         return PlatformState.from_dict(json.loads(data)) if data else None
 
+    def list_history(self, session_id: str) -> list[dict[str, Any]]:
+        """Return ordered checkpoint metadata for audit and replay."""
+        return self.backend.list_history(session_id)
+
+    def sync_with_consensus(self, session_id: str, state_json: str) -> bool:
+        """Synchronize state with distributed consensus mechanism (ADR-0007)."""
+        return self.backend.sync_with_consensus(session_id, state_json)
+
     def close(self) -> None:
-        self.backend.close()
+        backend = getattr(self, "backend", None)
+        if backend is not None:
+            backend.close()
+
+    def __del__(self) -> None:
+        self.close()

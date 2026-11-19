@@ -1,6 +1,18 @@
-# `.agents` — Swarm & Delivery Artifacts and Workspace Skills
+# `.agents` — Project Brain, Swarm & Delivery Artifacts, and Workspace Skills
 
-This directory stores intermediate engineering and delivery artifacts under `artifacts/<feature-slug>/` and reusable workspace skills under `skills/<skill-name>/` (keeping all workspace `.md` links relative and portable across checkouts).
+This directory stores the persistent Project Brain / Second Brain under [`brain/`](brain/README.md), intermediate engineering and delivery artifacts under `artifacts/<feature-slug>/`, and reusable workspace skills under `skills/<skill-name>/` (keeping all workspace `.md` links relative and portable across checkouts).
+
+## Persistent Project Brain / Second Brain (`brain/`)
+
+Structured architectural memory, symbol ontology, domain playbooks, and bitemporal fact seed for AI coding agents and human contributors:
+
+| Brain Document | Purpose |
+| :--- | :--- |
+| [`brain/README.md`](brain/README.md) | Master cognitive hub, 4-layer matrix, 8-domain routing table, 6-agent dual-gate topology, and CLI quick-reference |
+| [`brain/knowledge-graph.md`](brain/knowledge-graph.md) | Architectural knowledge graph, entity-relationship dependency chains, lifecycle state machines, and `ADR-0001`..`ADR-0009` index |
+| [`brain/domain-playbooks-and-invariants.md`](brain/domain-playbooks-and-invariants.md) | Deep-dive into the 7 architectural invariants, 8 domain playbooks, model creation recipes, and troubleshooting memory |
+| [`brain/symbol-and-contract-index.md`](brain/symbol-and-contract-index.md) | Complete symbol dictionary across 20 source files & 8 test suites, 5 SQLite WAL schemas, 18 CLI subcommands, and 18 MCP tools |
+| [`brain/brain-knowledge-graph.json`](brain/brain-knowledge-graph.json) | Machine-readable JSON ontology and bitemporal fact seed for `BitemporalEpisodicMemory` & `HybridKnowledgeStore` |
 
 ## Workspace Skills (`skills/`)
 
