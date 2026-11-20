@@ -31,13 +31,13 @@ Welcome to the central engineering documentation for the **Proprietary Technical
 
 | Directory / File | Scope |
 | :--- | :--- |
-| [`overview/`](overview/project-overview.md) | Executive summary, strategic rationale, 6 supported domains, Scenario A/B/C economics, and local vs. cluster scope boundaries. |
-| [`architecture/`](architecture/README.md) | [System Architecture](architecture/system-architecture.md), [Component Architecture](architecture/component-architecture.md), [Data Flow & Lifecycles](architecture/data-flow.md), [Integrations & Boundaries](architecture/integrations.md), and [Architecture Decision Records (`ADR-0001..0004`)](architecture/decisions/README.md). |
-| [`modules/`](modules/README.md) | Deep-dive module references for [CLI (`cli.md`)](modules/cli.md), [Layer 1 Intelligence](modules/layer1-intelligence.md), [Layer 2 Execution](modules/layer2-execution.md), [Layer 3 Evolution](modules/layer3-evolution.md), and [Deploy & Security](modules/deploy-security.md). |
+| [`overview/`](overview/project-overview.md) | Executive summary, strategic rationale, 8 supported domains, Scenario A/B/C economics, and local vs. cluster scope boundaries. |
+| [`architecture/`](architecture/README.md) | [System Architecture](architecture/system-architecture.md), [Component Architecture](architecture/component-architecture.md), [Data Flow & Lifecycles](architecture/data-flow.md), [Integrations & Boundaries](architecture/integrations.md), and [Architecture Decision Records (`ADR-0001..0006`)](architecture/decisions/README.md). |
+| [`modules/`](modules/README.md) | Deep-dive module references for [CLI (`cli.md`)](modules/cli.md), [Layer 1 Intelligence](modules/layer1-intelligence.md), [Layer 2 Execution](modules/layer2-execution.md), [Layer 3 Evolution & Data Ingestion](modules/layer3-evolution.md), and [Deploy & Security](modules/deploy-security.md). |
 | [`workflows/`](workflows/README.md) | End-to-end execution and learning lifecycles: [10-Step Agent Execution Lifecycle](workflows/agent-execution-lifecycle.md), [5-Stage Model Post-Training Pipeline](workflows/model-post-training-pipeline.md), and [8-Step Controlled Improvement Cycle](workflows/controlled-improvement-cycle.md). |
 | [`development/`](development/README.md) | [Getting Started](development/getting-started.md), [Environment Setup](development/environment-setup.md), [Configuration Reference](development/configuration.md), [Development Workflow](development/development-workflow.md), and [Troubleshooting](development/troubleshooting.md). |
-| [`api/`](api/README.md) | Public Python API exports, CLI subcommand flags, JSON/JSONL file contracts, and HMAC-signed MCP tool contracts. |
-| [`testing/`](testing/README.md) | Unit, integration, and security test suite (`tests/test_platform_core.py`) and `PropBench-9` statistical multi-run evaluation. |
+| [`api/`](api/README.md) | Public Python API exports, CLI subcommand flags (23 subcommands), JSON/JSONL file contracts, and HMAC-signed MCP tool contracts. |
+| [`testing/`](testing/README.md) | Unit, integration, security & 4-tier E2E test suite (`211` tests across `tests/`) and `PropBench-9` / `BenchmarkSuiteRunner` evaluation. |
 | [`deployment/`](deployment/README.md) | `.safetensors` packaging, `SGLang`/`vLLM` launch commands, `PyTorch FSDP2`/`DeepSpeed ZeRO-3` specs, and Kubernetes `agent-sandbox` CRDs. |
 | [`security/`](security/README.md) | Threat model, `TAINTED_UNTRUSTED` lockdown, 24-syscall seccomp, `CyberGymFirewall`, `SafetensorsValidator`, and `LicenseComplianceAuditor`. |
 | [`operations/`](operations/README.md) | OpenTelemetry span inspection, SQLite WAL checkpoint auditing & time-travel replay, CoW SLA monitoring, and Canary Promotion Gate runbooks. |
@@ -60,6 +60,7 @@ Welcome to the central engineering documentation for the **Proprietary Technical
 - [`src/platform_core/layer1_intelligence/README.md`](../src/platform_core/layer1_intelligence/README.md)
 - [`src/platform_core/layer2_execution/README.md`](../src/platform_core/layer2_execution/README.md)
 - [`src/platform_core/layer3_evolution/README.md`](../src/platform_core/layer3_evolution/README.md)
+- [`src/platform_core/data_ingestion/README.md`](../src/platform_core/data_ingestion/README.md)
 - [`src/platform_core/deploy_security/README.md`](../src/platform_core/deploy_security/README.md)
 - [`examples/README.md`](../examples/README.md)
 - [`tests/README.md`](../tests/README.md)

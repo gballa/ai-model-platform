@@ -17,6 +17,7 @@
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli scan-forensics --target-dir <dir> --platform {auto,ios,android,host}`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli analyze-image --path <file>`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-benchmarks`
+  - `PYTHONPATH=src .venv/bin/python -m platform_core.cli transparency-dashboard --session-id <session_id>`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli harvest-corpus --pdf <file_or_dir> [--url <url>] [--distill-output <jsonl>]`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli recommend-strategy --corpus-tokens <int> --domain <domain>`
   - `PYTHONPATH=src .venv/bin/python -m platform_core.cli train-scratch-slm --model-id <id> --corpus-file <file> --output-dir <dir>`

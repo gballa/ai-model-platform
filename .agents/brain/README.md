@@ -43,9 +43,9 @@ When starting any task in this workspace:
 | [`README.md`](README.md) | **Master Hub & Cognitive Map**: System snapshot, 4-layer matrix, 8-domain routing table, 6-agent topology, and CLI quick-reference. | All AI agents, new contributors, `ProjectContextManager` |
 | [`knowledge-graph.md`](knowledge-graph.md) | **Architectural Knowledge Graph**: Mermaid entity-relationship graphs, cross-layer dependency chains, lifecycle state machines, and ADR decision registry (`ADR-0001`..`ADR-0009`). | `system-architect`, `tech-lead`, `research` agents |
 | [`domain-playbooks-and-invariants.md`](domain-playbooks-and-invariants.md) | **Operational Memory & Guardrails**: Deep-dive into the 7 workspace invariants, 8 domain execution recipes, security gates, and anti-pattern troubleshooting. | `dev-worker`, `security-auditor`, `code-reviewer`, `test-engineer` |
-| [`symbol-and-contract-index.md`](symbol-and-contract-index.md) | **Symbol, Schema & Contract Atlas**: File-by-file class/function dictionary, 5 SQLite WAL schemas, 22 CLI subcommands, and 18 MCP stdio tools. | Coding agents performing surgical edits or writing unit tests |
+| [`symbol-and-contract-index.md`](symbol-and-contract-index.md) | **Symbol, Schema & Contract Atlas**: File-by-file class/function dictionary, 5 SQLite WAL schemas, 23 CLI subcommands, and 18 MCP stdio tools. | Coding agents performing surgical edits or writing unit tests |
 | [`brain-knowledge-graph.json`](brain-knowledge-graph.json) | **Machine-Readable Ontology & Bitemporal Fact Seed**: JSON graph of nodes, directed edges, bitemporal architectural facts (`subject`, `predicate`, `object_val`), and invariant checks. | `ProjectBrainEngine`, `BitemporalEpisodicMemory`, `HybridKnowledgeStore`, interactive visualizers |
-| [`corpus-swe-arch-and-product.md`](corpus-swe-arch-and-product.md) | **SWE, Architecture & Product Discovery Corpus (`MOD-SWE-01`..`02`, `MOD-PROD-01`..`02`)**: Distributed resilience (Circuit Breakers, Full Jitter, Little's Law), SQLite WAL Transactional Outbox, Testing Pyramid & CI/CD supply-chain gates, and RFC 2119 hypothesis-driven product specs. | `SoftwareEngineeringAgent`, `LeadOrchestratorAgent`, `ProjectBrainEngine`, `CustomModelPipeline` |
+| [`corpus-swe-arch-and-product.md`](corpus-swe-arch-and-product.md) | **SWE, Architecture & Product Discovery Corpus (`MOD-SWE-01`..`02`, `MOD-PROD-01`..`02`)**: Distributed resilience (Circuit Breakers, Full Jitter, Little's Law), SQLite WAL Transactional Outbox, Testing Pyramid & CI/CD supply-chain gates, and RFC 2119 hypothesis-driven product specs. | `SoftwareEngineeringAgent`, `PrincipalOrchestratorAgent`, `ProjectBrainEngine`, `CustomModelPipeline` |
 | [`corpus-android-security-masvs.md`](corpus-android-security-masvs.md) | **Android Security & OWASP MASVS/MASTG Corpus (`MOD-AND-01`..`04`)**: Android 12–15+ IPC/`PendingIntent.FLAG_IMMUTABLE`/App Links, StrongBox KeyMint `AES-256-GCM`, WebView & SPKI pinning + Play Integrity, and defensive spyware/accessibility triage. | `DefensiveCyberAgent`, `ForensicsMCPServer`, `ProjectBrainEngine`, `CustomModelPipeline` |
 | [`corpus-ios-security-masvs.md`](corpus-ios-security-masvs.md) | **iOS Security & OWASP MASVS/MASTG Corpus (`MOD-IOS-01`..`04`)**: iOS 14–18+ Universal Links & `PrivacyInfo.xcprivacy`, Secure Enclave ECIES & Keychain Data Protection, `WKWebView`/ATS/SPKI pinning, and defensive `.mobileconfig`/`Shutdown.log` forensic triage. | `DefensiveCyberAgent`, `ForensicsMCPServer`, `ProjectBrainEngine`, `CustomModelPipeline` |
 | [`corpus-obfuscation-and-multimodal.md`](corpus-obfuscation-and-multimodal.md) | **De-Obfuscation & Multimodal Visual/Audio Corpus (`MOD-OBF-01`..`02`, `MOD-MM-01`..`02`)**: Finite-sample Shannon entropy ($\min(8.0, \log_2 N)$), AST/SSA de-obfuscation & DWARF struct IoU, C4/STRIDE visual diagrams & bounded PDF decompression, and RIFF/WAVE PCM signal framing. | `ReverseEngineeringAgent`, `MultimodalDataAgent`, `DataAndVisualMCPServer`, `ProjectBrainEngine` |
@@ -59,14 +59,14 @@ When starting any task in this workspace:
 | :--- | :--- | :--- |
 | **Package & Version** | `platform-core` (`v1.0.0`) / CLI entrypoint `platform-cli` | [`pyproject.toml`](../../pyproject.toml), [`src/platform_core/cli.py`](../../src/platform_core/cli.py) |
 | **Runtime Baseline** | Python `>= 3.11`, **zero mandatory third-party dependencies** (`dependencies = []`) | [`pyproject.toml`](../../pyproject.toml) |
-| **Optional Extras** | `[mlx]`, `[train]`, `[rag]`, `[vision]`, `[forensics]`, `[agy]`, `[dev]` | [`pyproject.toml`](../../pyproject.toml) |
-| **Architecture Pattern** | Three-Layer Hybrid Technical Intelligence (`Layer 1 Intelligence`, `Layer 2 Execution`, `Layer 3 Evolution`) + Cross-Cutting `deploy_security` | [`docs/architecture/system-architecture.md`](../../docs/architecture/system-architecture.md) |
+| **Optional Extras** | `[mlx]`, `[train]`, `[rag]`, `[vision]`, `[forensics]`, `[agy]`, `[all]` | [`pyproject.toml`](../../pyproject.toml) |
+| **Architecture Pattern** | Three-Layer Hybrid Technical Intelligence (`Layer 1 Intelligence`, `Layer 2 Execution`, `Layer 3 Evolution`) + `data_ingestion` + Cross-Cutting `deploy_security` | [`docs/architecture/system-architecture.md`](../../docs/architecture/system-architecture.md) |
 | **Supported Domains (8)** | `swe`, `cyber`, `vuln_intel`, `forensics`, `binrev`, `data_protocol`, `visual_ocr`, `architecture` | [`src/platform_core/layer1_intelligence/router.py`](../../src/platform_core/layer1_intelligence/router.py) |
-| **Model Pools (4)** | `PRIMARY_SWE_CYBER`, `SYSTEMS_BINREV`, `MULTIMODAL_DATA_ARCH`, `FAST_DRAFTER_ROUTER` | [`src/platform_core/layer1_intelligence/models.py`](../../src/platform_core/layer1_intelligence/models.py) |
-| **Specialist Agents (6)** | `LeadOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent` | [`src/platform_core/layer2_execution/agents.py`](../../src/platform_core/layer2_execution/agents.py) |
+| **Model Pools (4)** | `POOL_1_ORCHESTRATOR`, `POOL_2_SWE_CYBER`, `POOL_3_BINREV`, `POOL_4_VISUAL_OCR` | [`src/platform_core/layer1_intelligence/models.py`](../../src/platform_core/layer1_intelligence/models.py) |
+| **Specialist Agents (6)** | `PrincipalOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent` | [`src/platform_core/layer2_execution/agents.py`](../../src/platform_core/layer2_execution/agents.py) |
 | **Deterministic MCP Servers (6)** | `CodeGraphMCPServer`, `BinRevMCPServer`, `DefensiveCyberMCPServer`, `DataAndVisualMCPServer`, `VulnIntelMCPServer`, `ForensicsMCPServer` | [`src/platform_core/layer2_execution/mcp_tools.py`](../../src/platform_core/layer2_execution/mcp_tools.py) |
 | **Workspace Skills (5)** | `corpus-harvester`, `local-model-advisor`, `scratch-slm-trainer`, `pretrained-qlora-finetuner`, `agy-local-agent-runner` | [`.agents/skills/`](../skills/) |
-| **Verification Suite** | `49/49` unit, integration & security tests under `-W error` across 8 test modules + 5 executable `BenchmarkSuiteRunner` suites | [`tests/`](../../tests/) |
+| **Verification Suite** | `211/211` automated tests (`59` unit/integration tests across 10 modules + `152` 4-tier E2E tests in `tests/e2e/`) under `-W error` + 5 executable `BenchmarkSuiteRunner` suites | [`tests/`](../../tests/) |
 
 ---
 
@@ -153,14 +153,14 @@ flowchart TB
 
 | Domain Key | Executor Agent | Target Model Pool | Default Thinking Mode | Primary MCP Server & Tool | Deterministic Verification Gate (`IndependentVerifierAgent`) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `swe` | `SoftwareEngineeringAgent` | `PRIMARY_SWE_CYBER` | `THINK_HIGH` (`512..1024` tokens) or `NON_THINK` | `CodeGraphMCPServer.query_impact_cone` | Unit/integration test pass + zero regression in Firecracker CoW sandbox |
-| `cyber` | `DefensiveCyberAgent` | `PRIMARY_SWE_CYBER` | `THINK_HIGH` / `THINK_MAX` (`2048` tokens) | `DefensiveCyberMCPServer.run_sast_taint_scan` | Exploit PoC blocked (`r_sec = 1.0`) + functional regression tests green |
-| `vuln_intel` | `DefensiveCyberAgent` | `PRIMARY_SWE_CYBER` | `THINK_HIGH` | `VulnIntelMCPServer.audit_project_dependencies` | Rules-of-Engagement (`AuthorizationScope`) validated + KEV/EPSS enrichment verified |
-| `forensics` | `DefensiveCyberAgent` | `PRIMARY_SWE_CYBER` | `THINK_HIGH` / `THINK_MAX` | `ForensicsMCPServer.triage_forensic_acquisition` | Anti-fabrication check: every `CONFIRMED_IOC_MATCH` has a real `artifact_path` and 64-hex `artifact_sha256` + `visibility_limitations` preserved |
-| `binrev` | `ReverseEngineeringAgent` | `SYSTEMS_BINREV` | `THINK_HIGH` / `THINK_MAX` | `BinRevMCPServer.decompile_and_extract_cfg` | Recompilability (`r_compile`) + behavioral I/O equivalence + DWARF byte-interval IoU |
-| `data_protocol` | `MultimodalDataAgent` | `MULTIMODAL_DATA_ARCH` | `THINK_HIGH` | `DataAndVisualMCPServer.classify_transformation` | Finite-sample normalized Shannon entropy + 100% Kaitai Struct byte coverage |
-| `visual_ocr` | `MultimodalDataAgent` | `MULTIMODAL_DATA_ARCH` | `THINK_HIGH` | `DataAndVisualMCPServer.inspect_visual_document` | Bounding-box IoU `>= 0.50` + deterministic image/PDF magic-header and dimensions verification |
-| `architecture` | `LeadOrchestratorAgent` | `MULTIMODAL_DATA_ARCH` | `THINK_HIGH` | `DataAndVisualMCPServer.verify_mermaid_and_layout` | Valid Mermaid syntax + C4 component boundary & cycle check |
+| `swe` | `SoftwareEngineeringAgent` | `POOL_2_SWE_CYBER` | `THINK_HIGH` (`512..1024` tokens) or `NON_THINK` | `CodeGraphMCPServer.query_symbol` / `query_impact_cone` | Unit/integration test pass + zero regression in Firecracker CoW sandbox |
+| `cyber` | `DefensiveCyberAgent` | `POOL_2_SWE_CYBER` | `THINK_HIGH` / `THINK_MAX` (`2048` tokens) | `DefensiveCyberMCPServer.scan_cpg_taint` | Exploit PoC blocked (`r_sec = 1.0`) + functional regression tests green |
+| `vuln_intel` | `DefensiveCyberAgent` | `POOL_2_SWE_CYBER` | `THINK_HIGH` | `VulnIntelMCPServer.audit_project_dependencies` | Rules-of-Engagement (`AuthorizationScope`) validated + KEV/EPSS enrichment verified |
+| `forensics` | `DefensiveCyberAgent` | `POOL_2_SWE_CYBER` | `THINK_HIGH` / `THINK_MAX` | `ForensicsMCPServer.analyze_forensic_target` | Anti-fabrication check: every `CONFIRMED_IOC_MATCH` has a real `artifact_path` and 64-hex `artifact_sha256` + `visibility_limitations` preserved |
+| `binrev` | `ReverseEngineeringAgent` | `POOL_3_BINREV` | `THINK_HIGH` / `THINK_MAX` | `BinRevMCPServer.inspect_binary` / `run_two_phase_sk2_decompile` | Recompilability (`r_compile`) + behavioral I/O equivalence + DWARF byte-interval IoU |
+| `data_protocol` | `MultimodalDataAgent` | `POOL_2_SWE_CYBER` | `THINK_HIGH` | `DataAndVisualMCPServer.classify_transformation` | Finite-sample normalized Shannon entropy + 100% Kaitai Struct byte coverage |
+| `visual_ocr` | `MultimodalDataAgent` | `POOL_4_VISUAL_OCR` | `NON_THINK` / `THINK_HIGH` | `DataAndVisualMCPServer.inspect_image_artifact` / `ground_visual_observations` | Bounding-box IoU & confidence threshold (`>= 0.80`) + deterministic image/PDF metadata verification |
+| `architecture` | `PrincipalOrchestratorAgent` | `POOL_1_ORCHESTRATOR` | `THINK_HIGH` / `THINK_MAX` | `CodeGraphMCPServer.analyze_blast_radius` | Syntactic/AST & C4 component integration test verification |
 
 ---
 
@@ -168,12 +168,12 @@ flowchart TB
 
 ```mermaid
 stateDiagram-v2
-    [*] --> LeadOrchestratorAgent: Step 1..4 Ingest, Taint & Route
-    LeadOrchestratorAgent --> SoftwareEngineeringAgent: domain = swe
-    LeadOrchestratorAgent --> DefensiveCyberAgent: domain = cyber | vuln_intel | forensics
-    LeadOrchestratorAgent --> ReverseEngineeringAgent: domain = binrev
-    LeadOrchestratorAgent --> MultimodalDataAgent: domain = data_protocol | visual_ocr
-    LeadOrchestratorAgent --> IndependentVerifierAgent: domain = architecture (after synthesis)
+    [*] --> PrincipalOrchestratorAgent: Step 1..4 Ingest, Taint & Route
+    PrincipalOrchestratorAgent --> SoftwareEngineeringAgent: domain = swe
+    PrincipalOrchestratorAgent --> DefensiveCyberAgent: domain = cyber | vuln_intel | forensics
+    PrincipalOrchestratorAgent --> ReverseEngineeringAgent: domain = binrev
+    PrincipalOrchestratorAgent --> MultimodalDataAgent: domain = data_protocol | visual_ocr
+    PrincipalOrchestratorAgent --> SoftwareEngineeringAgent: domain = architecture
 
     SoftwareEngineeringAgent --> IndependentVerifierAgent: Candidate Artifact (can_mark_completed=False)
     DefensiveCyberAgent --> IndependentVerifierAgent: Candidate Artifact (can_mark_completed=False)
@@ -181,7 +181,7 @@ stateDiagram-v2
     MultimodalDataAgent --> IndependentVerifierAgent: Candidate Artifact (can_mark_completed=False)
 
     IndependentVerifierAgent --> CoWRollback: Verification Failed (retry < 3)
-    CoWRollback --> LeadOrchestratorAgent: <15ms Snapshot Restore + Stderr Feedback
+    CoWRollback --> PrincipalOrchestratorAgent: <15ms Snapshot Restore + Stderr Feedback
     IndependentVerifierAgent --> Completed: Deterministic Gate PASS (can_mark_completed=True)
     IndependentVerifierAgent --> Escalated: Retries Exhausted / Human Review
     Completed --> [*]
@@ -193,12 +193,12 @@ stateDiagram-v2
 
 | Task | Exact Command |
 | :--- | :--- |
-| **Run All 49 Tests (Strict Warning Gate)** | `PYTHONPATH=src .venv/bin/python -W error -m unittest discover -s tests -v` |
+| **Run All 211 Tests (Strict Warning Gate)** | `PYTHONPATH=src .venv/bin/python -W error -m unittest discover -s tests -v` |
 | **Check Local Hardware & Model Feasibility** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli hardware-check` |
 | **Recommend Model Creation Strategy** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli recommend-strategy --corpus-tokens 150000 --domain swe` |
 | **Harvest Technical Corpus & Distill JSONL** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli harvest-corpus --pdf docs/ --domain swe --distill-output /tmp/distilled.jsonl` |
 | **Train Compact Scratch SLM (`micro` or `10M`..`350M`)** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli train-scratch-slm --model-id my-slm --corpus-file README.md --output-dir /tmp/slm_out` |
-| **Create & Package Custom Post-Trained Model** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli create-custom-model --model-id swe-v1 --domain swe --dataset-file examples/sample_swe_dataset.jsonl --output-dir /tmp/custom_swe` |
+| **Create & Package Custom Post-Trained Model** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli create-custom-model --model-id swe-v1 --domain swe --dataset-file examples/sample_custom_trajectories.jsonl --output-dir /tmp/custom_swe` |
 | **Run 10-Step Verified Domain Workflow** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain swe` |
 | **Run All 5 Executable Benchmark Suites** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-benchmarks` |
 | **Run Local Antigravity Agent (`--tainted` default)** | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-agy-local --prompt "Audit codebase invariants"` |

@@ -4,7 +4,7 @@
 
 ## 1. Module Responsibilities and Boundaries
 
-`platform_core.layer1_intelligence` owns hardware-aware model catalog management (`ModelRegistry`, `HardwareProfile`, `LocalHardwareDetector`), local & HTTP inference clients (`OpenAICompatibleClient`, `MLXLocalBackend`, `DeterministicMockBackend`, `MemoryResidencyGuard`, `ModelDownloadManager`), hardware/financial capacity planning (`HardwareFeasibilityPlanner`), entropy-aware request routing and `TTS@N` rollout pruning (`AdaptiveModelRouter`, `BestOfNVerifierPruner`), serving configuration & health probing (`ServingEndpointConfig`, `ServingHealthChecker`, `RadixPrefixCacheSimulator`), the 5-stage post-training and custom model packaging pipeline (`CustomModelPipeline`, `TrainingExecutionMode`, `MLXQLoRATrainer`, `TorchTRLSpecAndRunner`, `GRPOTrainer`, `MOPDDistiller`, `DPOTrainer`, reward oracles), and hardware-aware strategy advising plus from-scratch byte-level BPE & compact causal Transformer SLM creation (`CreationStrategyAdvisor`, `ModelCreationPath`, `BytePairTokenizer`, `ScratchSLMConfig`, `CompactTransformerSLMTrainer`, `ScratchSLMArtifact`). The default SWE/Cyber model is the DavidAU Qwen3.8 GGUF repository; the `heretic-llm` and `annihilation-llm` profile aliases resolve to that model.
+`platform_core.layer1_intelligence` owns hardware-aware model catalog management (`ModelRegistry`, `HardwareProfile`, `LocalHardwareDetector`), local & HTTP inference clients (`OpenAICompatibleClient`, `MLXLocalBackend`, `DeterministicMockBackend`, `MemoryResidencyGuard`, `ModelDownloadManager`), hardware/financial capacity planning (`HardwareFeasibilityPlanner`), entropy-aware request routing and `TTS@N` rollout pruning (`AdaptiveModelRouter`, `BestOfNVerifierPruner`), serving configuration & health probing (`ServingEndpointConfig`, `ServingHealthChecker`, `RadixPrefixCacheSimulator`), the 5-stage post-training and custom model packaging pipeline (`CustomModelPipeline`, `TrainingExecutionMode`, `MLXQLoRATrainer`, `TorchTRLSpecAndRunner`, `GRPOTrainer`, `MOPDDistiller`, `DPOTrainer`, reward oracles), hardware-aware strategy advising plus from-scratch byte-level BPE & compact causal Transformer SLM creation (`CreationStrategyAdvisor`, `ModelCreationPath`, `BytePairTokenizer`, `ScratchSLMConfig`, `CompactTransformerSLMTrainer`, `ScratchSLMArtifact`), and pure-stdlib `.safetensors` post-training weight surgery & quantization calibration (`HereticAbliterator`, `GAINAdaptiveScheduler`, `ColdFusionModelMerger`, `ImatrixQuantizationCalibrator`). The default SWE/Cyber model is the DavidAU Qwen3.8 GGUF repository; the `heretic-llm` and `annihilation-llm` profile aliases resolve to that model.
 
 ---
 
@@ -18,6 +18,7 @@ flowchart LR
     Serving["serving.py\nServingEndpointConfig (SGLang/vLLM/mlx_lm/llama_cpp),\nServingHealthChecker, RadixPrefixCacheSimulator"]
     Training["training.py\nCustomModelPipeline, TrainingExecutionMode,\nMLXQLoRATrainer, TorchTRLSpecAndRunner,\nGRPO/MOPD/DPO & Reward Oracles"]
     Scratch["scratch_trainer.py\nCreationStrategyAdvisor, BytePairTokenizer,\nCompactTransformerSLMTrainer, ScratchSLMConfig"]
+    Heretic["heretic.py\nHereticAbliterator, GAINAdaptiveScheduler,\nColdFusionModelMerger, ImatrixQuantizationCalibrator"]
 
     Router --> Models
     Serving --> Models
@@ -25,6 +26,7 @@ flowchart LR
     Training --> Models
     Training --> Serving
     Scratch --> Models
+    Heretic --> Scratch
 ```
 
 ---
@@ -39,6 +41,7 @@ flowchart LR
 | [`serving.py`](serving.py) | `ServingEndpointConfig`, `ServingHealthChecker`, `RadixPrefixCacheSimulator` | `to_launch_args()`, `probe()`, `record_request()`, `build_default_pool_configs()` |
 | [`training.py`](training.py) | `TrainingExecutionMode`, `MLXQLoRATrainer`, `TorchTRLSpecAndRunner`, `SWECyberRewardOracle`, `BinRevDecompileRewardOracle`, `GRPOTrainer`, `MOPDDistiller`, `DistributedTrainingSpecBuilder`, `DPOTrainer`, `CustomModelConfig`, `CustomModelArtifact`, `CustomModelPipeline` | `prepare_mlx_dataset()`, `build_fuse_command()`, `train()`, `compute_reward()`, `compute_struct_layout_iou()`, `build_custom_model()`, `load_custom_model_manifest()` |
 | [`scratch_trainer.py`](scratch_trainer.py) | `ModelCreationPath`, `StrategyRecommendation`, `CreationStrategyAdvisor`, `BytePairTokenizer`, `ScratchSLMConfig`, `ScratchSLMArtifact`, `CompactTransformerSLMTrainer` | `recommend()`, `train()`, `encode()`, `decode()`, `preset_tier()`, `train_and_export()`, `load_artifact_manifest()`, `generate_sample()` |
+| [`heretic.py`](heretic.py) | `HereticConfig`, `AbliterationLayerResult`, `HereticAbliterationReport`, `HereticAbliterator`, `GAINSampleWeight`, `GAINAdaptiveScheduler`, `ColdFusionMergeConfig`, `ColdFusionMergeReport`, `ColdFusionModelMerger`, `ImatrixCalibrationReport`, `ImatrixQuantizationCalibrator` | `extract_refusal_subspace()`, `orthogonalize_matrix()`, `abliterate_safetensors()`, `compute_sample_weights()`, `merge_safetensors()`, `calibrate_and_build_gguf_plan()` |
 
 ---
 
@@ -89,7 +92,7 @@ print(decision.primary_model.model_id, decision.thinking_mode.value, decision.ma
 
 - **Run Layer 1 Tests**:
   ```bash
-  PYTHONPATH=src .venv/bin/python -W error -m unittest tests.test_platform_core.TestLayer1IntelligenceAndTraining -v
+  PYTHONPATH=src .venv/bin/python -W error -m unittest tests.test_platform_core.TestLayer1IntelligenceAndTraining tests.test_inference_and_training tests.test_heretic_and_brain -v
   ```
 - **Common Errors**:
   - `PermissionError: Cannot register model ...`: Use an approved commercial license (`Apache-2.0`, `MIT`, `BSD-3-Clause`).

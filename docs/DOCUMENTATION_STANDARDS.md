@@ -58,7 +58,7 @@ The repository enforces a structured, non-duplicative hierarchy:
 │   │   ├── component-architecture.md      # Class & package boundaries
 │   │   ├── data-flow.md                   # Lifecycle sequences, SQLite schemas, CoW state
 │   │   ├── integrations.md                # MCP, Firecracker, SGLang/vLLM, FSDP2/ZeRO-3, K8s
-│   │   └── decisions/                     # Architecture Decision Records (ADR-0001..0004)
+│   │   └── decisions/                     # Architecture Decision Records (ADR-0001..0006; proposed 0007..0009)
 │   ├── modules/                           # Central module reference guides
 │   ├── workflows/                         # 10-step execution, 5-stage training, 8-step evolution
 │   ├── development/                       # Setup, config, workflow, extension, troubleshooting

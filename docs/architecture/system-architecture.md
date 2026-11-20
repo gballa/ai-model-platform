@@ -50,21 +50,21 @@ flowchart TB
         Registry["ModelRegistry\n(4 Pools + Custom Overrides)"]
         Router["AdaptiveModelRouter\n(ThinkingMode + BestOfNVerifierPruner)"]
         Serving["ServingEndpointConfig & RadixPrefixCacheSimulator\n(SGLang v0.5.19 / vLLM v0.28)"]
-        Training["5-Stage Post-Training & CustomModelPipeline\n(CPT -> SFT -> MOPD -> GRPO/RLVR -> DPO)"]
+        Training["5-Stage Post-Training, Scratch SLM & Heretic/Cold-Fusion\n(CustomModelPipeline, CompactTransformerSLMTrainer, HereticAbliterator)"]
         Oracles["Reward Oracles\n(SWECyberRewardOracle + BinRevDecompileRewardOracle)"]
     end
 
     subgraph L2["Layer 2: Stateful Execution & Sandboxing (layer2_execution)"]
         Orch["ExecutionLifecycleOrchestrator\n(10-Step Lifecycle + Approval Gate)"]
-        State["PlatformState & SQLiteStateCheckpointer\n(WAL Mode + Time-Travel Replay)"]
-        Agents["6 Specialist Agents\n(Orchestrator, SWE, BinRev, Cyber, MultimodalData, IndependentVerifier)"]
-        MCP["4 Deterministic MCP Servers\n(CodeGraph, BinRev, DefensiveCyber, DataAndVisual)"]
+        State["PlatformState & SQLiteStateCheckpointer\n(WAL Mode + Time-Travel Replay + Epistemic Ledger)"]
+        Agents["6 Specialist Agents + AGY SDK Bridge\n(Orchestrator, SWE, BinRev, Cyber, MultimodalData, IndependentVerifier)"]
+        MCP["6 Deterministic MCP Servers\n(CodeGraph, BinRev, DefensiveCyber, DataAndVisual, VulnIntel, Forensics)"]
         Sandbox["FirecrackerSandboxManager\n(24-Syscall Seccomp + <15ms CoW Snapshot Rollback)"]
     end
 
-    subgraph L3["Layer 3: Evolution, Memory & Evaluation (layer3_evolution)"]
+    subgraph L3["Layer 3: Evolution, Memory & Evaluation (layer3_evolution & data_ingestion)"]
         Memory["BitemporalEpisodicMemory & HybridKnowledgeStore\n(GAM + Graphiti Edges + 200K Prefix Rule)"]
-        Factories["Data Factories & DatasetHygienePipeline\n(SWEFuse, SecBench, DecompileBench)"]
+        Factories["CorpusHarvester + Data Factories + ProjectBrainEngine\n(SWEFuse, SecBench, DecompileBench, 4-Gate Hygiene)"]
         Eval["PropBench9Suite & BenchmarkEvaluator\n(95% CI, pass^4, Canary Promotion Gate)"]
         Cycle["ControlledImprovementCycle\n(8-Step Offline Learning Loop)"]
     end

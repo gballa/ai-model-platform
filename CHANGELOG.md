@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Local Hardware, Inference, Vulnerability Intel, Forensics & Epistemic Architecture (`ADR-0005`)**:
+  - Added `LocalHardwareDetector` (`hardware-check`), `OpenAICompatibleClient`, `MLXLocalBackend`, `DeterministicMockBackend`, `MemoryResidencyGuard`, and `ModelDownloadManager` (`download-model`) in `layer1_intelligence/inference.py`.
+  - Added `VulnIntelMCPServer` (`vuln_intel_mcp.py`, `sync-vuln-db`, `audit-vulns`) with offline SQLite KEV/EPSS/OSV mirroring and fail-closed `AuthorizationScope` enforcement, plus `ForensicsMCPServer` & `Stix2IocEngine` (`forensics_mcp.py`, `scan-forensics`) with SHA-256 anti-fabrication and `visibility_limitations` gates, expanding agent workflows and `VALID_DOMAINS` to 8 domains (`vuln_intel`, `forensics` added).
+  - Added `EpistemicAssessment` (`FACT`, `HYPOTHESIS`, `UNCERTAIN`) in `layer2_execution/state.py`, `BenchmarkSuiteRunner` (`run-benchmarks`, 5 default suites), and `transparency-dashboard` (`--session-id`) in `cli.py`.
+- **Local AI Model Creator, Corpus Harvester, Scratch SLM & Antigravity SDK Bridge (`ADR-0006`)**:
+  - Added `CorpusHarvesterPipeline`, `PDFBookExtractor`, `RateLimitedWebHarvester`, `PromptInjectionSanitizer`, `DomainChunker`, and `TeacherDistiller` (`harvest-corpus`).
+  - Added `CreationStrategyAdvisor` (`recommend-strategy`), `BytePairTokenizer`, and `CompactTransformerSLMTrainer` (`train-scratch-slm`, `10M`/`50M`/`125M`/`350M` presets + `<Q` `header_pad` protection).
+  - Added `AgySkillDiscovery` (5 workspace skills under `.agents/skills/`), `AgyStdioMCPBridge` (`mcp-stdio-bridge`, 18 clean / 17 tainted JSON-RPC 2.0 tools across 6 MCP servers), and `AgyLocalOrchestrator` (`run-agy-local`).
+- **Heretic Abliteration, GAIN, Cold-Fusion Merge, IMatrix Calibration & Project Brain**:
+  - Added `layer1_intelligence/heretic.py` (`HereticAbliterator`, `GAINAdaptiveScheduler`, `ColdFusionModelMerger`, `ImatrixQuantizationCalibrator`) and `layer3_evolution/brain_engine.py` (`ProjectBrainEngine`) alongside `.agents/brain/` ontology/corpora and CLI subcommands `brain-query`, `heretic-abliterate`, `cold-fusion-merge`, and `brain-pipeline` (`23` total subcommands).
+- **Modular Extraction, Scripts & 4-Tier E2E Verification (`211` Tests)**:
+  - Extracted `platform_core.data_ingestion` (`data_factory.py`, re-exported by `layer3_evolution`).
+  - Added milestone corpus & trajectory utility scripts under `scripts/` and expanded verification to `211` tests (`59` across 10 `tests/test_*.py` modules + `152` across the 4-tier `tests/e2e/` runner).
+
 ## [1.0.0] - 2026-11-15
 
 ### Added

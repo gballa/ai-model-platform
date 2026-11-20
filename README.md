@@ -9,7 +9,7 @@
 | **Architecture Blueprint** | Three-Layer Hybrid Technical Intelligence Architecture (`Scenario-B` Post-Training + Local Apple Silicon / Multi-GPU Hardware Profiles) |
 | **Supported Domains** | `swe`, `cyber`, `vuln_intel`, `forensics`, `binrev`, `data_protocol`, `visual_ocr`, `architecture` |
 | **Sovereign License Gate** | `Apache-2.0`, `MIT`, `BSD-3-Clause` enforced; copyleft & EU-restricted weights blocked |
-| **Verification Gate** | `49/49` unit, integration & security tests passing under `-W error` + 5 executable `BenchmarkSuiteRunner` suites |
+| **Verification Gate** | `211/211` automated tests (`59` unit/integration tests across 10 modules + `152` 4-tier E2E tests in `tests/e2e/`) passing under `-W error` + 5 executable `BenchmarkSuiteRunner` suites |
 
 ---
 
@@ -22,7 +22,7 @@
 5. [How to Achieve Every Core Workflow (Step-by-Step)](#5-how-to-achieve-every-core-workflow-step-by-step)
    - [5.1 Goal 1: Evaluate Architecture Economics & Hardware ROI](#51-goal-1-evaluate-architecture-economics--hardware-roi)
    - [5.2 Goal 2: Create, Post-Train & Package a Custom Domain AI Model](#52-goal-2-create-post-train--package-a-custom-domain-ai-model)
-   - [5.3 Goal 3: Run Verified 10-Step Agent Workflows Across All 6 Domains](#53-goal-3-run-verified-10-step-agent-workflows-across-all-6-domains)
+   - [5.3 Goal 3: Run Verified 10-Step Agent Workflows Across All 8 Domains](#53-goal-3-run-verified-10-step-agent-workflows-across-all-8-domains)
    - [5.4 Goal 4: Execute Your Custom Model on a Live Security or Engineering Task](#54-goal-4-execute-your-custom-model-on-a-live-security-or-engineering-task)
    - [5.5 Goal 5: Inspect Unknown Binary Streams & Synthesize Kaitai Schemas](#55-goal-5-inspect-unknown-binary-streams--synthesize-kaitai-schemas)
    - [5.6 Goal 6: Run the Full 5-Stage Post-Training & Canary Gate Pipeline](#56-goal-6-run-the-full-5-stage-post-training--canary-gate-pipeline)
@@ -44,15 +44,16 @@ Modern engineering organizations need AI systems that can autonomously patch sof
    - Replaces \$5.6M–\$50M+ scratch pretraining with a **5-stage post-training pipeline** (`Domain CPT -> Multi-Task SFT -> On-Policy MOPD -> Verifiable GRPO/RLVR -> Edge-Case DPO`) on permissive open checkpoints (`Qwen/Qwen3.8-27B`, `DeepSeek-V4-Flash`).
    - Scores candidate rollouts using **deterministic execution reward oracles** (`SWECyberRewardOracle` for bug/vulnerability fixes; `BinRevDecompileRewardOracle` for compilation, unit test equivalence, and DWARF struct byte-interval IoU).
    - Exports cryptographically verified `.safetensors` checkpoints, `.manifest.json` metadata, SGLang/vLLM serving flags, and PyTorch FSDP2 / DeepSpeed ZeRO-3 distributed training specs.
-   - Advises on optimal creation paths (`CreationStrategyAdvisor`: `PRETRAINED_RAG_ONLY`, `PRETRAINED_QLORA_FIRST`, `FROM_SCRATCH_COMPACT_SLM`, `MULTI_GPU_FULL_POST_TRAIN`) and trains custom byte-level BPE tokenizers (`BytePairTokenizer`) plus compact causal Transformer SLMs (`CompactTransformerSLMTrainer`, `10M`–`350M` presets or micro defaults) to verified `.safetensors` artifacts.
+   - Advises on optimal creation paths (`CreationStrategyAdvisor`: `PRETRAINED_RAG_ONLY`, `PRETRAINED_QLORA_FIRST`, `FROM_SCRATCH_COMPACT_SLM`, `MULTI_GPU_FULL_POST_TRAIN`), trains custom byte-level BPE tokenizers (`BytePairTokenizer`) plus compact causal Transformer SLMs (`CompactTransformerSLMTrainer`, `10M`–`350M` presets or micro defaults), and performs pure-stdlib `.safetensors` post-training weight surgery (`HereticAbliterator`, `GAINAdaptiveScheduler`, `ColdFusionModelMerger`, `ImatrixQuantizationCalibrator`).
 2. **Executes Taint-Isolated, Verifier-Gated Multi-Agent Workflows (`Layer 2 — layer2_execution`)**:
-   - Routes tasks across **4 specialized model pools** and **6 consolidated agents** (`LeadOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent`), plus local Google Antigravity SDK orchestration (`AgyLocalOrchestrator`, `AgyStdioMCPBridge`, `AgySkillDiscovery` across 5 workspace skills in [`.agents/skills/`](.agents/skills/)).
-   - Enforces the **`SecVerifier` Dual-Gate**: executor agents (`can_mark_completed=False`) can never self-approve their own output. Only `IndependentVerifierAgent` (`can_mark_completed=True`) can mark a workflow `COMPLETED` after deterministic test, PoC, compilation, or byte-coverage verification inside an isolated Firecracker microVM sandbox.
+   - Routes tasks across **4 specialized model pools** and **6 consolidated agents** (`PrincipalOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent`), backed by **6 deterministic MCP servers** (`CodeGraph`, `BinRev`, `DefensiveCyber`, `DataAndVisual`, `VulnIntel`, `Forensics`), plus local Google Antigravity SDK orchestration (`AgyLocalOrchestrator`, `AgyStdioMCPBridge`, `AgySkillDiscovery` across 5 workspace skills in [`.agents/skills/`](.agents/skills/)).
+   - Enforces the **`SecVerifier` Dual-Gate**: executor agents (`can_mark_completed=False`) can never self-approve their own output. Only `IndependentVerifierAgent` (`can_mark_completed=True`) can mark a workflow `COMPLETED` after deterministic test, PoC, compilation, forensic SHA-256 anti-fabrication, or byte-coverage verification inside an isolated Firecracker microVM sandbox.
    - Restores workspace state in **`<15ms` via Copy-on-Write (CoW) snapshots** whenever a candidate patch fails verification, feeding exact compiler/test stderr back to the executor agent for up to 3 bounded retries.
-3. **Maintains Bitemporal Memory & Continuous Self-Improvement (`Layer 3 — layer3_evolution`)**:
+3. **Maintains Bitemporal Memory, Project Brain & Continuous Evolution (`Layer 3 — layer3_evolution` & `data_ingestion`)**:
    - Tracks evolving architectural facts across both **valid time** `[t_valid, t_invalid)` and **transaction time** `[t_tx, t_retract)` (`BitemporalEpisodicMemory`) so agents can query what was true at any historical timestamp.
    - Automatically selects between **`DIRECT_PREFIX_CACHE`** (`< 200,000` corpus tokens) and **`HYBRID_PGVECTORSCALE_SEARCH`** (`>= 200,000` tokens) via `HybridKnowledgeStore`.
-   - Curates verified production traces through an **8-step `ControlledImprovementCycle`** with benchmark decontamination, MinHash LSH deduplication, `PropBench-9` evaluation (`pass@k` and `pass^k`), and `CanaryDeploymentGate` promotion.
+   - Synchronizes structured workspace knowledge into RAG + bitemporal memory and drives Brain -> GAIN -> Heretic -> Cold-Fusion -> IMatrix SLM creation (`ProjectBrainEngine`).
+   - Synthesizes and filters clean training data (`platform_core.data_ingestion` factories + 4-gate `DatasetHygienePipeline`) and curates verified production traces through an **8-step `ControlledImprovementCycle`** with benchmark decontamination, MinHash LSH deduplication, `PropBench-9` evaluation (`pass@k` and `pass^k`), `BenchmarkSuiteRunner`, and `CanaryDeploymentGate` promotion.
    - Harvests technical PDFs, Markdown/reST books, and firewall-gated URLs (`CorpusHarvesterPipeline`, `PDFBookExtractor`, `RateLimitedWebHarvester`, `PromptInjectionSanitizer`, `DomainChunker`, `TeacherDistiller`) directly into `HybridKnowledgeStore` and license-audited JSONL trajectories.
 4. **Enforces Supply-Chain, License & Sandbox Security (`deploy_security`)**:
    - Rejects unsafe Python pickle checkpoints (`.pkl`, `.pt`, `.bin`, or disguised pickle magic bytes) via `SafetensorsValidator`.
@@ -60,7 +61,7 @@ Modern engineering organizations need AI systems that can autonomously patch sof
    - Tags any session ingesting external repositories or untrusted binaries at Step 1 as **`TAINTED_UNTRUSTED`**, stripping `network_egress` and `admin_deploy` capabilities and enforcing HMAC-SHA256 signed MCP tool manifests (`SignedManifestVerifier`).
 
 > [!IMPORTANT]
-> **Zero-Dependency Local Execution:** Everything in `platform-core`—including the 10-step orchestrator, SQLite WAL state checkpointer, 3-tier polyglot code graph, Firecracker CoW sandbox runtime, custom model training pipeline, and all 6 domain workflows—runs locally using **only the Python 3.11+ standard library**.
+> **Zero-Dependency Local Execution:** Everything in `platform-core`—including the 10-step orchestrator, SQLite WAL state checkpointer, 3-tier polyglot code graph, Firecracker CoW sandbox runtime, custom model training pipeline, Heretic/Cold-Fusion/IMatrix engines, and all 8 domain workflows—runs locally using **only the Python 3.11+ standard library**.
 
 ---
 
@@ -73,19 +74,19 @@ flowchart TB
     subgraph L1["Layer 1: Intelligence & Custom Model Creation (layer1_intelligence)"]
         Registry["4-Pool ModelRegistry + HardwareBreakEvenPlanner"]
         Router["AdaptiveModelRouter (NON_THINK / THINK_HIGH / THINK_MAX + TTS@N)"]
-        Pipeline["5-Stage CustomModelPipeline (CPT -> SFT -> MOPD -> GRPO/RLVR -> DPO)"]
+        Pipeline["5-Stage CustomModelPipeline + Scratch SLM + Heretic / Cold-Fusion / IMatrix"]
     end
 
     subgraph L2["Layer 2: Stateful Execution & Sandboxing (layer2_execution)"]
         Orch["10-Step ExecutionLifecycleOrchestrator + SQLiteStateCheckpointer (WAL)"]
-        Agents["5 Executor Agents (can_mark_completed=False) + IndependentVerifierAgent"]
-        MCP["4 Deterministic MCP Servers (CodeGraph, BinRev, DefensiveCyber, DataAndVisual)"]
+        Agents["5 Executor Agents (can_mark_completed=False) + IndependentVerifierAgent + AgyLocalOrchestrator"]
+        MCP["6 Deterministic MCP Servers (CodeGraph, BinRev, DefensiveCyber, DataAndVisual, VulnIntel, Forensics)"]
         Sandbox["FirecrackerSandboxManager (<15ms CoW Snapshots & seccomp-bpf)"]
     end
 
-    subgraph L3["Layer 3: Evolution, Memory & Benchmarking (layer3_evolution)"]
-        Memory["BitemporalEpisodicMemory + 200K-Token HybridKnowledgeStore"]
-        Evolution["Data Factories + DatasetHygienePipeline + PropBench-9 + 8-Step Improvement Cycle"]
+    subgraph L3["Layer 3: Evolution, Data Ingestion & Evaluation (layer3_evolution & data_ingestion)"]
+        Memory["BitemporalEpisodicMemory + 200K-Token HybridKnowledgeStore + ProjectBrainEngine"]
+        Evolution["Data Factories + CorpusHarvester + DatasetHygienePipeline + PropBench-9 + 8-Step Cycle"]
     end
 
     subgraph Sec["Deploy & Supply-Chain Security (deploy_security)"]
@@ -145,9 +146,9 @@ sequenceDiagram
 
 | Model Pool | Default Registered Models | Consolidated Agents Routed | Deterministic MCP Server |
 | :--- | :--- | :--- | :--- |
-| **`POOL_1_ORCHESTRATOR`** | `DeepSeek-V4-Flash` (MIT), `Qwen3.5-397B-A17B` (Apache-2.0) | `LeadOrchestratorAgent`, `SoftwareEngineeringAgent` (`architecture`), `IndependentVerifierAgent` | `CodeGraphMCPServer` |
-| **`POOL_2_SWE_CYBER`** | `Qwen3.8-27B-SWE-Cyber` (Apache-2.0) | `SoftwareEngineeringAgent` (`swe`), `DefensiveCyberAgent` (`cyber`) | `CodeGraphMCPServer`, `DefensiveCyberMCPServer` |
-| **`POOL_3_BINREV`** | `Qwen3.8-27B-BinRev` (Apache-2.0) | `ReverseEngineeringAgent` (`binrev`), `MultimodalDataAgent` (`data_protocol`) | `BinRevMCPServer`, `DataAndVisualMCPServer` |
+| **`POOL_1_ORCHESTRATOR`** | `DeepSeek-V4-Flash` (MIT), `Qwen3.5-397B-A17B` (Apache-2.0) | `PrincipalOrchestratorAgent`, `SoftwareEngineeringAgent` (`architecture`), `IndependentVerifierAgent` | `CodeGraphMCPServer` |
+| **`POOL_2_SWE_CYBER`** | DavidAU Qwen3.8-27B GGUF (`heretic-llm` / `annihilation-llm` aliases, Apache-2.0) & custom overrides | `SoftwareEngineeringAgent` (`swe`), `DefensiveCyberAgent` (`cyber`, `vuln_intel`, `forensics`), `MultimodalDataAgent` (`data_protocol`) | `CodeGraphMCPServer`, `DefensiveCyberMCPServer`, `VulnIntelMCPServer`, `ForensicsMCPServer`, `DataAndVisualMCPServer` |
+| **`POOL_3_BINREV`** | `Qwen3.8-27B-BinRev` (Apache-2.0) | `ReverseEngineeringAgent` (`binrev`) | `BinRevMCPServer` |
 | **`POOL_4_VISUAL_OCR`** | `OmniParser-V2-UI-TARS-GOT-OCR` (Apache-2.0) | `MultimodalDataAgent` (`visual_ocr`) | `DataAndVisualMCPServer` |
 
 ---
@@ -211,7 +212,7 @@ PYTHONPATH=src .venv/bin/python -m platform_core.cli evaluate-blueprint --budget
 #### Step 1: Prepare or Inspect the Training Trajectory JSONL Dataset
 Each line in [examples/sample_custom_trajectories.jsonl](examples/sample_custom_trajectories.jsonl) represents a verified execution trajectory:
 ```json
-{"trajectory_id": "custom-tr-1", "prompt": "Remediate CWE-78 command injection in ping handler", "response": "def run_ping(host: str) -> int:\n    return subprocess.call(['ping', '-c', '1', host], shell=False)", "compiles_or_parses": true, "poc_eliminated_or_tests_passed": true, "regression_rate": 1.0, "kl_divergence": 0.009, "struct_iou": 0.94}
+{"record_id": "acme-sec-001", "domain": "sec_bench", "source_repo": "acme/edge-proxy", "license_id": "Apache-2.0", "cve_id": "CVE-2026-8101", "prompt_context": "[Sec-Bench] Sanitizer: CWE-78 OS Command Injection in ping diagnostics endpoint.\nCPG Query: cpg.call.name('subprocess.call').whereShellTrue", "target_completion": "@@ -3,1 +3,1 @@\n-    return subprocess.call(f'ping -c 1 {host}', shell=True)\n+    return subprocess.call(['ping', '-c', '1', host], shell=False)", "execution_verified": true}
 ```
 
 #### Step 2: Run `create-custom-model`
@@ -236,9 +237,9 @@ PYTHONPATH=src .venv/bin/python -m platform_core.cli create-custom-model \
 
 ---
 
-### 5.3 Goal 3: Run Verified 10-Step Agent Workflows Across All 6 Domains
+### 5.3 Goal 3: Run Verified 10-Step Agent Workflows Across All 8 Domains
 
-**Objective:** Execute end-to-end taint-isolated agent workflows with CoW sandboxing and independent `SecVerifier` gating across any of the 6 supported domains.
+**Objective:** Execute end-to-end taint-isolated agent workflows with CoW sandboxing and independent `SecVerifier` gating across any of the 8 supported domains.
 
 | Domain Flag | What the Workflow Achieves | Command |
 | :--- | :--- | :--- |
@@ -246,22 +247,27 @@ PYTHONPATH=src .venv/bin/python -m platform_core.cli create-custom-model \
 | `cyber` | Detects `CWE-78` OS Command Injection (`shell=True`) via `DefensiveCyberMCPServer`, rewrites to argument-list `shell=False`, and verifies both PoC elimination and unit tests. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain cyber` |
 | `binrev` | Inspects an ELF binary (`checksec` + prompt-injection scan) and runs two-phase `SK²Decompile` + `ReCopilot` call-graph recovery to emit typed C code. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain binrev` |
 | `data_protocol` | Classifies binary payload entropy/headers and synthesizes a declarative Kaitai Struct `.ksy` schema verified for 100% byte coverage. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain data_protocol` |
-| `visual_ocr` | Runs `OmniParser-V2-UI-TARS-GOT-OCR` bounding-box grounding with the epistemic hallucination guard (`confidence < 0.65` triggers `zoom_crop_region`). | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain visual_ocr` |
+| `visual_ocr` | Runs `OmniParser-V2-UI-TARS-GOT-OCR` bounding-box grounding with the epistemic hallucination guard (`confidence < 0.80` triggers `zoom_crop_region`). | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain visual_ocr` |
 | `architecture` | Indexes workspace symbols into the 3-Tier SQLite `CodeGraphMCPServer`, patches module interfaces, and verifies callers in the sandbox. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain architecture` |
-| `vuln_intel` | Parses polyglot manifests, correlates Python AST taint + OSV/NVD/KEV/EPSS mirror, and separates `CONFIRMED_VULNERABILITY` from `POTENTIAL_WEAKNESS`. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli audit-vulns --project-dir .` |
-| `forensics` | Analyzes iOS backups, Android artifacts, and host logs with STIX2 spyware IOCs (`Pegasus`, `Predator`, `Graphite`, `Candiru`, `TriangleDB`) and strict anti-fabrication checks. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli scan-forensics --target-dir <dir> --platform auto` |
+| `vuln_intel` | Parses polyglot manifests, correlates Python AST taint + OSV/NVD/KEV/EPSS mirror, and separates `CONFIRMED_VULNERABILITY` from `POTENTIAL_WEAKNESS`. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain vuln_intel` (or `audit-vulns --project-dir .`) |
+| `forensics` | Analyzes iOS backups, Android artifacts, and host logs with STIX2 spyware IOCs (`Pegasus`, `Predator`, `Graphite`, `Candiru`, `TriangleDB`) and strict anti-fabrication checks. | `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain forensics` (or `scan-forensics --target-dir <dir> --platform auto`) |
 
-**Additional Hardware, Corpus, Strategy, Scratch SLM, AGY SDK & Benchmark CLI Commands**:
+**Additional Hardware, Corpus, Strategy, Scratch SLM, Project Brain, Heretic, AGY SDK & Benchmark CLI Commands (23 Subcommands Total)**:
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli hardware-check`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli download-model --model-id Qwen/Qwen3.5-35B-A3B --license Apache-2.0`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli sync-vuln-db --db-path vuln_intel_mirror.db --feeds kev epss`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli analyze-image --path <image_or_pdf>`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-benchmarks`
+- `PYTHONPATH=src .venv/bin/python -m platform_core.cli transparency-dashboard --session-id <session_id>`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli harvest-corpus --pdf docs/CUSTOM_MODEL_GUIDE.md --domain swe --distill-output ./artifacts/trajectories.jsonl`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli recommend-strategy --corpus-tokens 150000 --domain cyber`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli train-scratch-slm --model-id micro-swe-slm --text "def safe_div(a, b): return a / b if b else 0" --output-dir ./artifacts/scratch_slm`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-agy-local --prompt "Audit workspace function for CWE-78" --force-fallback`
 - `PYTHONPATH=src .venv/bin/python -m platform_core.cli mcp-stdio-bridge --server data_visual vuln_intel`
+- `PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-query --query "SecVerifier Gate" --top-k 5`
+- `PYTHONPATH=src .venv/bin/python -m platform_core.cli heretic-abliterate --input-safetensors <in.safetensors> --output-safetensors <out.safetensors> --rank 2 --max-kl 0.05`
+- `PYTHONPATH=src .venv/bin/python -m platform_core.cli cold-fusion-merge --checkpoints <a.safetensors> <b.safetensors> --output-safetensors <merged.safetensors> --method dare_ties`
+- `PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-pipeline --output-dir ./artifacts/brain_slm --model-id heretic-brain-slm --quant-type Q5_K_M`
 
 ---
 
@@ -390,19 +396,22 @@ print("Reward breakdown:", reward)  # {'r_comp': 1.0, 'r_exec': 1.0, 'struct_iou
 ├── requirements.txt                       # Environment dependency manifest (stdlib-only core)
 ├── src/platform_core/                     # Primary source package
 │   ├── README.md                          # Package map & cross-layer dependency rules
-│   ├── cli.py                             # Unified CLI (platform-cli) with 18 subcommands
-│   ├── layer1_intelligence/               # Hardware profiles, inference clients, router, serving, 5-stage training & scratch SLM trainer
+│   ├── cli.py                             # Unified CLI (platform-cli) with 23 subcommands
+│   ├── layer1_intelligence/               # Hardware profiles, inference clients, router, serving, 5-stage training, scratch SLM & Heretic/Cold-Fusion
 │   ├── layer2_execution/                  # 10-step orchestrator, 6 agents, 6 MCP servers, CoW sandbox & AGY SDK / stdio MCP bridge
-│   ├── layer3_evolution/                  # WAL SQLite RAG, corpus harvester/distiller, bitemporal memory, PropBench-9 & executable benchmarks
+│   ├── layer3_evolution/                  # WAL SQLite RAG, corpus harvester/distiller, Project Brain engine, bitemporal memory, PropBench-9 & benchmarks
+│   ├── data_ingestion/                    # Trajectory factories (SWEFuse, SecBench, DecompileBench) & 4-gate DatasetHygienePipeline
 │   └── deploy_security/                   # Safetensors, license audit, HMAC manifests, K8s & Squid firewall
 ├── examples/                              # Sample JSONL trajectories, JSON payloads & E2E Python script
-├── tests/                                 # 49 unit, integration & adversarial security tests across 8 suites
+├── scripts/                               # Milestone corpus ingestion & microVM trajectory synthesis scripts (emit to gitignored artifacts/)
+├── tests/                                 # 211 automated tests (59 unit/integration across 10 modules + 152 4-tier E2E tests in tests/e2e/)
+├── .agents/brain/                         # Persistent Project Brain hub, ontology graph JSON & curated domain training corpora
 ├── .agents/skills/                        # 5 discoverable workspace skills (corpus-harvester, local-model-advisor, scratch-slm-trainer, pretrained-qlora-finetuner, agy-local-agent-runner)
 └── docs/                                  # Comprehensive engineering documentation & governance hub
     ├── README.md                          # Role-based documentation navigation hub
     ├── DOCUMENTATION_STANDARDS.md         # Mandatory engineering documentation standard
     ├── AI_DOCUMENTATION_POLICY.md         # Enforceable contract for AI coding agents
-    ├── DOCUMENTATION_INDEX.md             # Living inventory of all 53 governed Markdown files
+    ├── DOCUMENTATION_INDEX.md             # Living inventory of all governed Markdown files & subsystems
     ├── DOCUMENTATION_COVERAGE.md          # Source-to-documentation traceability matrix
     ├── CUSTOM_MODEL_GUIDE.md              # Step-by-step custom model creation & execution playbook
     ├── HOW_TO_GUIDES.md                   # Real-life domain playbooks & code recipes
@@ -423,10 +432,10 @@ print("Reward breakdown:", reward)  # {'r_comp': 1.0, 'r_exec': 1.0, 'struct_iou
 
 ## 8. Testing, Benchmarking & Quality Assurance
 
-Run the full unit, integration, and security test suite under Python's strict warning gate (`-W error`):
+Run the full unit, integration, security, and 4-tier E2E test suite under Python's strict warning gate (`-W error`):
 
 ```bash
-# 1. Run all 49 unit, integration, and security tests
+# 1. Run all 211 tests (59 unit/integration + 152 E2E)
 PYTHONPATH=src .venv/bin/python -W error -m unittest discover -s tests -v
 
 # 2. Run the executable benchmark suite (coding, reasoning, cyber_vuln, forensics, hallucination_resistance)
@@ -436,7 +445,7 @@ PYTHONPATH=src .venv/bin/python -W error -m platform_core.cli run-benchmarks
 PYTHONPATH=src .venv/bin/python -W error examples/custom_model_end_to_end.py
 ```
 
-For detailed coverage of the test classes and `PropBench-9` evaluation (`pass@k` and `pass^k`), see [docs/testing/README.md](docs/testing/README.md) and [tests/README.md](tests/README.md).
+For detailed coverage of the test classes, 4-tier E2E runner, and `PropBench-9` evaluation (`pass@k` and `pass^k`), see [docs/testing/README.md](docs/testing/README.md) and [tests/README.md](tests/README.md).
 
 ---
 
@@ -445,9 +454,9 @@ For detailed coverage of the test classes and `PropBench-9` evaluation (`pass@k`
 | Category | Primary Entry Point | Key Contents |
 | :--- | :--- | :--- |
 | **Documentation Hub** | [docs/README.md](docs/README.md) | Role-based entry points for developers, architects, ML engineers, and SRE/SecOps. |
-| **Project Overview** | [docs/overview/project-overview.md](docs/overview/project-overview.md) | Problem statement, 6 technical domains, Scenario A/B/C economics, and execution scope. |
+| **Project Overview** | [docs/overview/project-overview.md](docs/overview/project-overview.md) | Problem statement, 8 technical domains, Scenario A/B/C economics, and execution scope. |
 | **Architecture & ADRs** | [docs/architecture/README.md](docs/architecture/README.md) | [System Architecture](docs/architecture/system-architecture.md), [Component Architecture](docs/architecture/component-architecture.md), [Data Flow](docs/architecture/data-flow.md), [Integrations](docs/architecture/integrations.md), and [ADRs (0001–0006)](docs/architecture/decisions/README.md). |
-| **Custom Model & How-To Guides** | [docs/CUSTOM_MODEL_GUIDE.md](docs/CUSTOM_MODEL_GUIDE.md), [docs/HOW_TO_GUIDES.md](docs/HOW_TO_GUIDES.md) | End-to-end custom model creation (`create-custom-model`), `run-custom-model`, and 7 domain playbooks. |
+| **Custom Model & How-To Guides** | [docs/CUSTOM_MODEL_GUIDE.md](docs/CUSTOM_MODEL_GUIDE.md), [docs/HOW_TO_GUIDES.md](docs/HOW_TO_GUIDES.md) | End-to-end custom model creation (`create-custom-model`, `train-scratch-slm`, `brain-pipeline`), `run-custom-model`, and 10 real-life domain playbooks. |
 | **Engineering Playbooks** | [docs/guides/README.md](docs/guides/README.md) | SQLite database operations, adding new agents/MCP tools/reward oracles, and production diagnostics. |
 | **Core Workflows** | [docs/workflows/README.md](docs/workflows/README.md) | [10-Step Agent Execution Lifecycle](docs/workflows/agent-execution-lifecycle.md), [5-Stage Model Post-Training](docs/workflows/model-post-training-pipeline.md), and [8-Step Controlled Improvement Cycle](docs/workflows/controlled-improvement-cycle.md). |
 | **Module Reference** | [docs/modules/README.md](docs/modules/README.md) | [CLI](docs/modules/cli.md), [Layer 1](docs/modules/layer1-intelligence.md), [Layer 2](docs/modules/layer2-execution.md), [Layer 3](docs/modules/layer3-evolution.md), and [Deploy Security](docs/modules/deploy-security.md). |

@@ -97,11 +97,12 @@ Per [docs/DOCUMENTATION_STANDARDS.md](docs/DOCUMENTATION_STANDARDS.md) and [docs
 ## 6. Conventional Commits & Pull Request Standards
 
 Use [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat(layer1): ...` — New capabilities in Layer 1 (`models`, `router`, `serving`, `training`)
-- `feat(layer2): ...` — New capabilities in Layer 2 (`state`, `sandbox`, `mcp_tools`, `agents`, `orchestrator`)
-- `feat(layer3): ...` — New capabilities in Layer 3 (`memory`, `data_factory`, `evaluation`, `observability`)
+- `feat(layer1): ...` — New capabilities in Layer 1 (`models`, `router`, `inference`, `serving`, `training`, `scratch_trainer`, `heretic`)
+- `feat(layer2): ...` — New capabilities in Layer 2 (`state`, `sandbox`, `mcp_tools`, `vuln_intel_mcp`, `forensics_mcp`, `agents`, `orchestrator`, `agy_sdk_bridge`)
+- `feat(layer3): ...` — New capabilities in Layer 3 (`memory`, `corpus_harvester`, `evaluation`, `observability`, `brain_engine`)
+- `feat(data_ingestion): ...` — Synthetic trajectory factory and `DatasetHygienePipeline` changes
 - `sec(governance): ...` — Security, firewall, Safetensors, or license auditing changes
-- `fix(<module>): ...` — Bug fixes with accompanying regression test in `tests/test_platform_core.py`
+- `fix(<module>): ...` — Bug fixes with accompanying regression test under `tests/` (`test_*.py` / `tests/e2e/`)
 - `docs(<scope>): ...` — Documentation and governance updates
 
 ---

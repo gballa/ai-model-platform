@@ -18,7 +18,7 @@
 
 ## 1. Module Responsibilities & Boundaries
 
-`platform_core.cli` provides the command-line interface (`platform-cli` or `python -m platform_core.cli`) across 18 subcommands covering blueprint evaluation, custom model post-training, corpus harvesting, strategy advising, compact scratch SLM training, 10-step agent workflows across all 8 domains, hardware profiling, vulnerability intelligence, spyware forensics, multimodal analysis, benchmarking, and Google Antigravity SDK / MCP stdio bridging. All standard subcommands output deterministic, sorted-key JSON (`json.dumps(result, indent=2, sort_keys=True)`) to `stdout` and return exit code `0` on success (`mcp-stdio-bridge` streams newline-delimited JSON-RPC 2.0 responses).
+`platform_core.cli` provides the command-line interface (`platform-cli` or `python -m platform_core.cli`) across 23 subcommands covering blueprint evaluation, custom model post-training, corpus harvesting, strategy advising, compact scratch SLM training, Heretic abliteration & Cold-Fusion merging, Project Brain RAG/bitemporal querying and SLM pipelines, 10-step agent workflows across all 8 domains, transparency diagnostics, hardware profiling, vulnerability intelligence, spyware forensics, multimodal analysis, benchmarking, and Google Antigravity SDK / MCP stdio bridging. All standard subcommands output deterministic, sorted-key JSON (`json.dumps(result, indent=2, sort_keys=True)`) to `stdout` and return exit code `0` on success (`mcp-stdio-bridge` streams newline-delimited JSON-RPC 2.0 responses).
 
 `pyproject.toml` preserves `dependencies = []` (zero mandatory third-party packages) while exposing optional extras including `[agy]` (`google-antigravity>=0.1.0`), `[mlx]`, `[train]`, `[rag]`, `[vision]`, `[forensics]`, and `[all]`.
 
@@ -28,7 +28,8 @@
 
 | Function | Signature | Return Value | Description |
 | :--- | :--- | :--- | :--- |
-| `run_evaluate_blueprint` | `run_evaluate_blueprint(budget_usd: int = 1_800_000) -> dict[str, Any]` | Dictionary containing `architecture`, `registered_models`, `serving_endpoints`, `recommended_scenario`, `pretrain_from_scratch_justified`, `gpu_ownership_break_even_months`, and `propbench_9_suites`. | Evaluates the default models in `ModelRegistry`, builds SGLang serving configs, runs `HardwareFeasibilityPlanner`, and lists all 9 `PropBench9Suite` IDs. |
+| `run_evaluate_blueprint` | `run_evaluate_blueprint(budget_usd: int = 1_800_000) -> dict[str, Any]` | Dictionary containing `architecture`, `registered_models`, `serving_endpoints`, `recommended_scenario`, `pretrain_from_scratch_justified`, `gpu_ownership_break_even_months`, and `propbench_9_suites`. | Evaluates the default models in `ModelRegistry`, builds serving configs, runs `HardwareFeasibilityPlanner`, and lists all 9 `PropBench9Suite` IDs. |
+| `run_transparency_dashboard` | `run_transparency_dashboard(session_id: str) -> dict[str, Any]` | Dictionary containing `session_id`, `taint_level`, `progress_step`, and `status`. | Queries session taint state and lifecycle step progress via `ExecutionLifecycleOrchestrator.get_session_status()`. |
 | `run_model_creation_pipeline` | `run_model_creation_pipeline(model_id="Qwen3.8-27B-SWE-Cyber-v1.0", base_checkpoint="Qwen/Qwen3.8-27B", domain="swe", pool=None, total_params_b=27.8, active_params_b=None, context_window=262_144, license_id="Apache-2.0", output_dir=None, dataset_file=None, execution_mode="spec_only", lora_rank=16, training_iters=200) -> dict[str, Any]` | Dictionary summarizing training metrics, `checkpoint_sha256`, `canary_promoted`, `serving_launch_args`, and optional `safetensors_path` / `manifest_path`. | Executes `CustomModelPipeline.build_custom_model()` with optional custom JSON/JSONL trajectories, `spec_only`/`mlx_qlora`/`torch_trl` mode, and disk export. |
 | `run_demo_workflow` | `run_demo_workflow(domain=None, model_id=None, manifest_path=None, payload_file=None) -> dict[str, Any]` | Dictionary with `session_id`, `status`, `current_step`, `taint_level`, `routed_model_id`, `selected_pool`, `thinking_mode`, `max_thinking_tokens_per_turn`, `verified_by`, `consolidated_memory_event_id`, `telemetry_span_count`, and `deliverable_outputs`. | Loads an optional custom model manifest and/or custom workflow JSON payload, executes `ExecutionLifecycleOrchestrator.run_workflow()`, and closes SQLite resources cleanly in a `finally` block. |
 | `run_harvest_corpus` | `run_harvest_corpus(pdf_paths=None, book_dirs=None, urls=None, domain="swe", license_id="Apache-2.0", limit=50, allowed_domains=None, requests_per_second=1.0, distill_output=None, teacher_model_id="Qwen/Qwen3.5-35B-A3B", teacher_license_id="Apache-2.0", max_samples_per_doc=3, session_tainted=False, ingest_into_rag=True, rag_db_path=":memory:") -> dict[str, Any]` | Dictionary with `documents_harvested`, `total_chunks`, `total_tokens_est`, `rejected_sources`, `rag_ingestion_stats`, `documents`, and optional `distillation`. | Harvests PDF/Markdown/reST/text books and firewall-approved URLs via `CorpusHarvesterPipeline`, indexes chunks into `HybridKnowledgeStore`, and optionally synthesizes distilled JSONL trajectories. |
@@ -57,11 +58,16 @@
 | `audit-vulns` | `--project-dir <dir>` (required), `--db-path` | Audits project dependencies and AST taint against the SQLite vulnerability mirror. |
 | `analyze-image` | `--path <file>` (required), `--prompt`, `--endpoint` | Inspects image metadata or extracts text from `.pdf`/`.md`/`.txt`/`.json`/`.csv`, with optional OpenAI-compatible VLM analysis. |
 | `run-benchmarks` | `--suites` (`coding reasoning cyber_vuln forensics hallucination_resistance`) | Runs executable `BenchmarkSuiteRunner` capability and hallucination-resistance suites. |
+| `transparency-dashboard` | `--session-id <id>` (required) | Exposes session taint level, task status, and lifecycle step progress (`run_transparency_dashboard`). |
 | `harvest-corpus` | `--pdf`, `--book-dir`, `--url`, `--domain`, `--license`, `--limit`, `--allowed-domain`, `--requests-per-second`, `--distill-output`, `--teacher-model`, `--teacher-license`, `--max-samples-per-doc`, `--no-ingest-rag`, `--rag-db-path`, `--output`, `--tainted` / `--clean` | Harvests local books/PDFs and firewall-approved URLs into `HybridKnowledgeStore` and optionally exports distilled JSONL trajectories. |
 | `recommend-strategy` | `--corpus-tokens <int>` (required), `--domain`, `--custom-vocab`, `--target-params-m`, `--output` | Recommends RAG-only vs. local QLoRA vs. compact scratch SLM vs. multi-GPU post-training. |
 | `train-scratch-slm` | `--model-id`, `--corpus-file`, `--corpus-dir`, `--text`, `--output-dir`, `--tier {10M,50M,125M,350M}`, `--steps`, `--d-model`, `--n-layers`, `--n-heads`, `--d-ff`, `--vocab-size`, `--max-seq-len`, `--batch-size`, `--learning-rate`, `--seed`, `--backend {auto,stdlib,mlx,torch}`, `--license`, `--domain`, `--sample-prompt`, `--max-new-tokens`, `--output` | Trains a byte-level BPE tokenizer and compact causal Transformer SLM, exporting `.safetensors`, `.tokenizer.json`, and `.manifest.json`. |
 | `run-agy-local` | `--agent-name`, `--prompt` (required), `--runtime {local_openai,litert}`, `--model`, `--base-url`, `--litert-backend {gpu,npu}`, `--skills-dir`, `--mcp-server`, `--max-subagent-depth`, `--force-fallback`, `--output`, `--tainted` / `--clean` (default tainted) | Runs a local Google Antigravity SDK agent (or deterministic stdlib fallback) gated by `IndependentVerifierAgent`. |
 | `mcp-stdio-bridge` | `--server` / `--servers`, `--vuln-db-path`, `--tainted` / `--clean` (default tainted) | Serves `platform_core` MCP servers over newline-delimited JSON-RPC 2.0 stdin/stdout. |
+| `brain-query` | `--query <text>` (required), `--brain-dir`, `--top-k`, `--as-of`, `--output` | Synchronizes `.agents/brain/` and queries hybrid RAG, bitemporal facts, and ontology nodes/invariants via `ProjectBrainEngine`. |
+| `heretic-abliterate` | `--input-safetensors <path>` (required), `--output-safetensors <path>` (required), `--rank`, `--max-kl`, `--output` | Runs KL-bounded Arbitrary-Rank Ablation (`HereticAbliterator`) directly on a verified `.safetensors` checkpoint. |
+| `cold-fusion-merge` | `--checkpoints <p1 p2 ...>` (required), `--output-safetensors <path>` (required), `--method {dare_ties,slerp}`, `--drop-rate`, `--density`, `--quant-type {Q4_K_M,Q4_K_S,Q5_K_M,Q8_0,IQ4_XS}`, `--output-dir`, `--output` | Merges checkpoints via Cold-Fusion DARE-TIES or SLERP and optionally builds an IMatrix GGUF/MLX quantization plan. |
+| `brain-pipeline` | `--output-dir <dir>` (required), `--model-id`, `--brain-dir`, `--domain`, `--steps`, `--rank`, `--drop-rate`, `--quant-type {Q4_K_M,Q4_K_S,Q5_K_M,Q8_0,IQ4_XS}`, `--output` | Runs the end-to-end Project Brain -> GAIN -> Heretic abliteration -> Cold-Fusion merge -> IMatrix pipeline. |
 
 ---
 
@@ -105,6 +111,14 @@ PYTHONPATH=src .venv/bin/python -m platform_core.cli train-scratch-slm \
 PYTHONPATH=src .venv/bin/python -m platform_core.cli run-agy-local \
   --prompt "Audit sample Python function for command injection" \
   --force-fallback
+
+# Query Project Brain hybrid RAG and bitemporal memory
+PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-query \
+  --query "SecVerifier Gate" --top-k 5
+
+# Run end-to-end Brain -> GAIN -> Heretic -> Cold-Fusion -> IMatrix pipeline
+PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-pipeline \
+  --output-dir ./artifacts/brain_slm --model-id heretic-brain-slm --quant-type Q5_K_M
 ```
 
 ---

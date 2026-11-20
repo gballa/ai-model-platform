@@ -35,7 +35,7 @@ All classes reside in [`governance.py`](governance.py) and depend exclusively on
 
 ## 4. Dependencies and Integrations
 
-- Imported by `layer1_intelligence` (`models.py`, `training.py`), `layer2_execution` (`sandbox.py`, `orchestrator.py`), and `layer3_evolution` (`data_factory.py`).
+- Imported by `data_ingestion` (`data_factory.py`), `layer1_intelligence` (`models.py`, `inference.py`, `training.py`, `scratch_trainer.py`, `heretic.py`), `layer2_execution` (`sandbox.py`, `orchestrator.py`), and `layer3_evolution` (`corpus_harvester.py`, `brain_engine.py`).
 
 ---
 
@@ -63,7 +63,7 @@ print(auditor.audit("Qwen3.8-27B", "Apache-2.0").verdict.value)  # APPROVED_COMM
 
 validator = SafetensorsValidator()
 buf = validator.create_valid_safetensors_bytes(
-    tensors_meta={"w": {"dtype": "FP16" if False else "F16", "shape": [2, 2], "data_offsets": [0, 8]}},
+    tensors_meta={"w": {"dtype": "F16", "shape": [2, 2], "data_offsets": [0, 8]}},
     data_payload=b"\x00" * 8,
 )
 print("Verified tensors:", validator.validate_bytes(buf)["tensor_count"])  # 1

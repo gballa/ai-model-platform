@@ -39,7 +39,7 @@ No external environment variables, API keys, or background database daemons are 
 python3 -m venv .venv
 .venv/bin/pip install -e .
 
-# Step 2: Run all 20 unit, integration, and security tests under strict warning gate
+# Step 2: Run all 211 unit, integration, security, and E2E tests under strict warning gate
 PYTHONPATH=src .venv/bin/python -W error -m unittest discover -s tests -v
 
 # Step 3: Evaluate the architecture blueprint and hardware break-even
@@ -56,7 +56,7 @@ PYTHONPATH=src .venv/bin/python -W error examples/custom_model_end_to_end.py
 
 ## 6. Expected Results
 
-- **Test Suite**: Outputs `Ran 20 tests in ~0.40s` followed by `OK` with exit code `0`.
+- **Test Suite**: Outputs `Ran 211 tests ...` followed by `OK` with exit code `0`.
 - **`evaluate-blueprint`**: Prints JSON with `"recommended_scenario": "Scenario-B"`, `"pretrain_from_scratch_justified": false`, `"gpu_ownership_break_even_months": 22.3`, and 5 registered models.
 - **`run-workflow --domain cyber`**: Prints JSON with `"status": "COMPLETED"`, `"current_step": 10`, `"taint_level": "TAINTED_UNTRUSTED"`, and `"verified_by": "independent_verifier"`.
 - **`examples/custom_model_end_to_end.py`**: Prints JSON confirming `"safetensors_verified": true`, `"license_verdict": "APPROVED_COMMERCIAL"`, and `"routed_model_id": "Acme-SecCoder-27B-v1"`.
@@ -68,7 +68,7 @@ PYTHONPATH=src .venv/bin/python -W error examples/custom_model_end_to_end.py
 | Symptom / Error | Cause | Resolution |
 | :--- | :--- | :--- |
 | `ModuleNotFoundError: No module named 'platform_core'` | Running Python without `PYTHONPATH=src` or without `.venv/bin/pip install -e .`. | Prefix commands with `PYTHONPATH=src` or run `.venv/bin/pip install -e .`. |
-| `Unsupported workflow domain` | Passing an unrecognized `--domain` flag. | Use one of `{swe, cyber, binrev, data_protocol, architecture, visual_ocr}`. |
+| `Unsupported workflow domain` | Passing an unrecognized `--domain` flag. | Use one of `{swe, cyber, vuln_intel, forensics, binrev, data_protocol, architecture, visual_ocr}`. |
 
 ---
 

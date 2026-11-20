@@ -16,6 +16,8 @@ The `examples/` directory provides verified, self-contained sample files and exe
 | [`sample_custom_trajectories.jsonl`](sample_custom_trajectories.jsonl) | JSON Lines (`.jsonl`) | Three execution-verified training trajectories across `sec_bench` (`Apache-2.0`), `swe_fuse` (`MIT`), and `decompile_bench` (`BSD-3-Clause`) for testing `create-custom-model` and `CustomModelPipeline.load_trajectories_from_file()`. |
 | [`sample_cyber_workflow.json`](sample_cyber_workflow.json) | JSON object (`.json`) | Sample `cyber` workflow payload defining `session_id`, `objective`, `workspace_files` (`service.py` with a `CWE-78` `shell=True` sink), and `task_payload` for `run-workflow` and `run-custom-model`. |
 
+See also [`scripts/ingest_m1_corpus.py`](../scripts/ingest_m1_corpus.py) and [`scripts/synthesize_v4_trajectories.py`](../scripts/synthesize_v4_trajectories.py) for large-scale corpus RAG ingestion and Firecracker microVM trajectory verification scripts generating artifacts under `artifacts/` (gitignored).
+
 ---
 
 ## 3. Verified Execution Commands

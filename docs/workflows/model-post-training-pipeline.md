@@ -1,6 +1,6 @@
 # The 5-Stage Model Post-Training & Custom Model Pipeline
 
-**Source Implementation:** [`src/platform_core/layer1_intelligence/training.py`](../../src/platform_core/layer1_intelligence/training.py), [`data_factory.py`](../../src/platform_core/layer3_evolution/data_factory.py), [`evaluation.py`](../../src/platform_core/layer3_evolution/evaluation.py), [`governance.py`](../../src/platform_core/deploy_security/governance.py)
+**Source Implementation:** [`src/platform_core/layer1_intelligence/training.py`](../../src/platform_core/layer1_intelligence/training.py), [`data_factory.py`](../../src/platform_core/data_ingestion/data_factory.py), [`evaluation.py`](../../src/platform_core/layer3_evolution/evaluation.py), [`governance.py`](../../src/platform_core/deploy_security/governance.py)
 
 ---
 

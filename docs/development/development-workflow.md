@@ -25,7 +25,7 @@ All tests must be executed with Python's `-W error` flag (`PYTHONPATH=src .venv/
 
 ### 4.1 Pre-Implementation Discovery (Stage 1 & 2 of Lifecycle)
 1. Inspect [docs/DOCUMENTATION_INDEX.md](../DOCUMENTATION_INDEX.md) and [docs/DOCUMENTATION_COVERAGE.md](../DOCUMENTATION_COVERAGE.md).
-2. Identify which module (`layer1_intelligence`, `layer2_execution`, `layer3_evolution`, or `deploy_security`) owns the capability and which documentation files will be affected.
+2. Identify which module (`layer1_intelligence`, `layer2_execution`, `layer3_evolution`, `data_ingestion`, or `deploy_security`) owns the capability and which documentation files will be affected.
 
 ### 4.2 Adding a New Scoped MCP Tool (Example Workflow)
 1. **Implement the deterministic method** on the appropriate MCP server in [`src/platform_core/layer2_execution/mcp_tools.py`](../../src/platform_core/layer2_execution/mcp_tools.py).
@@ -92,7 +92,7 @@ print("Zero TODOs and valid AST across all Python files.")
 ## 6. Expected Results
 
 - The manifest snippet prints `Manifest Verified: True | HMAC: <16-char hex>`.
-- The test suite runs 20/20 tests with `OK` and zero warnings.
+- The test suite runs all `211` tests (`59` unit/integration tests + `152` 4-tier E2E tests) with `OK` and zero warnings.
 - The hygiene scan outputs `Zero TODOs and valid AST across all Python files.`
 
 ---

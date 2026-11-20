@@ -1,7 +1,7 @@
 # Module Reference: Layer 3 — Evolution, Bitemporal Memory & PropBench-9 (`platform_core.layer3_evolution`)
 
-**Source Directory:** [`src/platform_core/layer3_evolution/`](../../src/platform_core/layer3_evolution/)  
-**Local Module README:** [`src/platform_core/layer3_evolution/README.md`](../../src/platform_core/layer3_evolution/README.md)
+**Source Directory:** [`src/platform_core/layer3_evolution/`](../../src/platform_core/layer3_evolution/) (plus re-exports from [`src/platform_core/data_ingestion/`](../../src/platform_core/data_ingestion/))  
+**Local Module README:** [`src/platform_core/layer3_evolution/README.md`](../../src/platform_core/layer3_evolution/README.md), [`src/platform_core/data_ingestion/README.md`](../../src/platform_core/data_ingestion/README.md)
 
 ---
 
@@ -9,12 +9,13 @@
 
 1. [Module Responsibilities & Boundaries](#1-module-responsibilities--boundaries)
 2. [`memory.py` — `BitemporalEpisodicMemory` & `HybridKnowledgeStore`](#2-memorypy--bitemporalepisodicmemory--hybridknowledgestore)
-3. [`data_factory.py` — Trajectory Factories & `DatasetHygienePipeline`](#3-data_factorypy--trajectory-factories--datasethygienepipeline)
+3. [`../data_ingestion/data_factory.py` — Trajectory Factories & `DatasetHygienePipeline`](#3-data_ingestiondata_factorypy--trajectory-factories--datasethygienepipeline)
 4. [`corpus_harvester.py` — Book/Web Corpus Harvesting, Sanitization & Teacher Distillation](#4-corpus_harvesterpy--bookweb-corpus-harvesting-sanitization--teacher-distillation)
-5. [`evaluation.py` — `PropBench9Suite` & `BenchmarkEvaluator`](#5-evaluationpy--propbench9suite--benchmarkevaluator)
-6. [`observability.py` — `ControlledImprovementCycle`](#6-observabilitypy--controlledimprovementcycle)
-7. [Testing & Verification](#7-testing--verification)
-8. [Related Documentation](#8-related-documentation)
+5. [`brain_engine.py` — `ProjectBrainEngine`, Sync/Query & Brain SLM Pipeline](#5-brain_enginepy--projectbrainengine-syncquery--brain-slm-pipeline)
+6. [`evaluation.py` — `PropBench9Suite` & `BenchmarkEvaluator`](#6-evaluationpy--propbench9suite--benchmarkevaluator)
+7. [`observability.py` — `ControlledImprovementCycle`](#7-observabilitypy--controlledimprovementcycle)
+8. [Testing & Verification](#8-testing--verification)
+9. [Related Documentation](#9-related-documentation)
 
 ---
 
@@ -38,7 +39,9 @@
 
 ---
 
-## 3. `data_factory.py` — Trajectory Factories & `DatasetHygienePipeline`
+## 3. `data_ingestion/data_factory.py` — Trajectory Factories & `DatasetHygienePipeline`
+
+Canonical module: [`src/platform_core/data_ingestion/data_factory.py`](../../src/platform_core/data_ingestion/data_factory.py) (re-exported by `platform_core.layer3_evolution`).
 
 - **`SWEFuseFactory.build_pair(...)`**: Produces paired `(guided, issue_free)` `TrainingTrajectoryRecord` instances for the same bug fix.
 - **`SecBenchFactory.build_record(...)`**: Produces sanitizer-verified CVE remediation records (tracking `INSTANCE_GENERATION_COST_USD = 0.87`).
@@ -58,7 +61,13 @@
 
 ---
 
-## 5. `evaluation.py` — `PropBench9Suite` & `BenchmarkEvaluator`
+## 5. `brain_engine.py` — `ProjectBrainEngine`, Sync/Query & Brain SLM Pipeline
+
+- **`ProjectBrainEngine(brain_dir=".agents/brain", ...)`**: Rejects `..` traversal and symlinked brain roots/files, synchronizes `brain-knowledge-graph.json` and curated Markdown/JSONL files into `HybridKnowledgeStore` and `BitemporalEpisodicMemory` (`sync_brain() -> BrainSyncReport`), executes hybrid RAG + point-in-time `as_of` bitemporal + ontology graph queries (`query_brain() -> BrainQueryResult`), and runs the end-to-end Brain -> GAIN -> Heretic abliteration -> Cold-Fusion merge -> IMatrix pipeline (`run_brain_training_pipeline() -> BrainPipelineReport`).
+
+---
+
+## 6. `evaluation.py` — `PropBench9Suite` & `BenchmarkEvaluator`
 
 - **`BenchmarkEvaluator`**:
   - `evaluate_multi_run(benchmark_id, run_scores, target_threshold) -> MultiRunBenchmarkResult`: Computes sample mean, sample standard deviation, and 95% confidence interval margin $1.96 \times s / \sqrt{n}$.
@@ -68,21 +77,22 @@
 
 ---
 
-## 6. `observability.py` — `ControlledImprovementCycle`
+## 7. `observability.py` — `ControlledImprovementCycle` & `MonitoringService`
 
 - **`TraceOutcome`**: `VERIFIED_PASS`, `RETRY_RECOVERED`, `VERIFIER_REJECTED`, `HUMAN_EDITED`.
 - **`FailureRootCauseBucket`**: `KNOWLEDGE_GAP_RAG_SCIP`, `TOOLING_PARSER_BUG`, `MODEL_WEIGHT_REASONING_GAP`.
 - **`ControlledImprovementCycle.execute_cycle(...)`**: Executes all 8 steps of the offline continuous improvement loop.
+- **`MonitoringService`**: Collects and surfaces execution telemetry/diagnostic views.
 
 ---
 
-## 7. Testing & Verification
+## 8. Testing & Verification
 
-Covered by `TestLayer3EvolutionMemoryAndEvaluation` in [`tests/test_platform_core.py`](../../tests/test_platform_core.py), `TestMemoryRagAndVision` in [`tests/test_memory_rag_and_vision.py`](../../tests/test_memory_rag_and_vision.py), `TestBenchmarksAndEpistemic` in [`tests/test_benchmarks_and_epistemic.py`](../../tests/test_benchmarks_and_epistemic.py), and `TestCorpusHarvester` in [`tests/test_corpus_and_scratch_trainer.py`](../../tests/test_corpus_and_scratch_trainer.py).
+Covered by `TestLayer3EvolutionMemoryAndCLI` in [`tests/test_platform_core.py`](../../tests/test_platform_core.py), `TestMemoryRagAndVision` in [`tests/test_memory_rag_and_vision.py`](../../tests/test_memory_rag_and_vision.py), `TestBenchmarksAndEpistemic` in [`tests/test_benchmarks_and_epistemic.py`](../../tests/test_benchmarks_and_epistemic.py), `TestCorpusHarvester` in [`tests/test_corpus_and_scratch_trainer.py`](../../tests/test_corpus_and_scratch_trainer.py), and `TestHereticAndBrain` in [`tests/test_heretic_and_brain.py`](../../tests/test_heretic_and_brain.py).
 
 ---
 
-## 8. Related Documentation
+## 9. Related Documentation
 
 - [8-Step Controlled Improvement Cycle](../workflows/controlled-improvement-cycle.md)
 - [ADR-0004: Bitemporal Memory & 200K Knowledge Store](../architecture/decisions/ADR-0004-bitemporal-memory-and-200k-hybrid-knowledge-store.md)

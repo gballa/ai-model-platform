@@ -10,7 +10,7 @@
 1. [Source File & Symbol Dictionary (`src/platform_core/`)](#1-source-file--symbol-dictionary-srcplatform_core)
 2. [Test Suite Atlas (`tests/`)](#2-test-suite-atlas-tests)
 3. [SQLite WAL Database Schemas (5 Persistent Stores)](#3-sqlite-wal-database-schemas-5-persistent-stores)
-4. [Unified CLI Subcommand Contract Table (22 Subcommands)](#4-unified-cli-subcommand-contract-table-22-subcommands)
+4. [Unified CLI Subcommand Contract Table (23 Subcommands)](#4-unified-cli-subcommand-contract-table-23-subcommands)
 5. [MCP Stdio JSON-RPC 2.0 Tool Registry (18 Tools Across 6 Servers)](#5-mcp-stdio-json-rpc-20-tool-registry-18-tools-across-6-servers)
 
 ---
@@ -20,7 +20,7 @@
 | File Path | Package / Layer | Exported Classes, Enums & Functions |
 | :--- | :--- | :--- |
 | [`src/platform_core/__init__.py`](../../src/platform_core/__init__.py) | `platform_core` | `__version__` (`"1.0.0"`) |
-| [`src/platform_core/cli.py`](../../src/platform_core/cli.py) | `platform_core.cli` | `build_parser()`, `main()`, 22 CLI subcommand handlers |
+| [`src/platform_core/cli.py`](../../src/platform_core/cli.py) | `platform_core.cli` | `main()`, 9 `run_*` orchestration helpers, 23 CLI subcommand handlers |
 | [`src/platform_core/layer1_intelligence/__init__.py`](../../src/platform_core/layer1_intelligence/__init__.py) | `layer1_intelligence` | Re-exports all Layer 1 public classes |
 | [`src/platform_core/layer1_intelligence/models.py`](../../src/platform_core/layer1_intelligence/models.py) | `layer1_intelligence` | `ModelPool`, `ThinkingMode`, `ModelSpec`, `HardwareProfile`, `LocalHardwareDetector`, `HardwareFeasibilityReport`, `HardwareFeasibilityPlanner`, `CostComparisonReport`, `HardwareBreakEvenPlanner`, `ModelRegistry` |
 | [`src/platform_core/layer1_intelligence/router.py`](../../src/platform_core/layer1_intelligence/router.py) | `layer1_intelligence` | `RoutingRequest`, `RoutingDecision`, `AdaptiveModelRouter`, `CandidateRollout`, `BestOfNVerifierPruner` |
@@ -36,15 +36,15 @@
 | [`src/platform_core/layer2_execution/mcp_tools.py`](../../src/platform_core/layer2_execution/mcp_tools.py) | `layer2_execution` | `SymbolNode`, `ImpactConeResult`, `CodeGraphMCPServer`, `DecompiledFunctionArtifact`, `BinRevMCPServer`, `SASTFinding`, `DefensiveCyberMCPServer`, `TransformationClass`, `DataClassificationResult`, `VisualInspectionResult`, `DataAndVisualMCPServer` |
 | [`src/platform_core/layer2_execution/vuln_intel_mcp.py`](../../src/platform_core/layer2_execution/vuln_intel_mcp.py) | `layer2_execution` | `VulnFindingClassification`, `AuthorizationScope`, `VulnerabilityIntelligenceRecord`, `PackageDependency`, `DependencyAuditFinding`, `DependencyAuditReport`, `VulnIntelMCPServer` |
 | [`src/platform_core/layer2_execution/forensics_mcp.py`](../../src/platform_core/layer2_execution/forensics_mcp.py) | `layer2_execution` | `ForensicVerdict`, `ForensicIndicator`, `ForensicFinding`, `ForensicAssessment`, `Stix2IocEngine`, `ForensicsMCPServer` |
-| [`src/platform_core/layer2_execution/agents.py`](../../src/platform_core/layer2_execution/agents.py) | `layer2_execution` | `AgentExecutionResult`, `AgentToolLoop`, `BaseAgentNode`, `LeadOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent` |
-| [`src/platform_core/layer2_execution/orchestrator.py`](../../src/platform_core/layer2_execution/orchestrator.py) | `layer2_execution` | `LifecycleStep`, `WorkflowExecutionReport`, `ExecutionLifecycleOrchestrator` |
+| [`src/platform_core/layer2_execution/agents.py`](../../src/platform_core/layer2_execution/agents.py) | `layer2_execution` | `AgentNodeDescriptor`, `BaseSpecialistAgent`, `AgentToolLoop`, `PrincipalOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent` |
+| [`src/platform_core/layer2_execution/orchestrator.py`](../../src/platform_core/layer2_execution/orchestrator.py) | `layer2_execution` | `LifecycleStep`, `ExecutionLifecycleOrchestrator` |
 | [`src/platform_core/layer2_execution/agy_sdk_bridge.py`](../../src/platform_core/layer2_execution/agy_sdk_bridge.py) | `layer2_execution` | `MAX_JSONRPC_LINE_BYTES`, `AgyLocalAgentSpec`, `AgyExecutionResult`, `AgySkillDiscovery`, `AgyStdioMCPBridge`, `AgyLocalOrchestrator` |
-| [`src/platform_core/layer3_evolution/__init__.py`](../../src/platform_core/layer3_evolution/__init__.py) | `layer3_evolution` | Re-exports all Layer 3 public classes |
-| [`src/platform_core/layer3_evolution/memory.py`](../../src/platform_core/layer3_evolution/memory.py) | `layer3_evolution` | `ProgressionEvent`, `BitemporalFactEdge`, `BitemporalEpisodicMemory`, `EmbeddingProvider`, `DeterministicHashEmbedder`, `InferenceBackendEmbedder`, `KnowledgeChunk`, `RetrievalResult`, `HybridKnowledgeStore`, `ProjectContextBundle`, `ProjectContextManager` |
+| [`src/platform_core/layer3_evolution/__init__.py`](../../src/platform_core/layer3_evolution/__init__.py) | `layer3_evolution` | Re-exports all Layer 3 & `data_ingestion` public classes |
+| [`src/platform_core/layer3_evolution/memory.py`](../../src/platform_core/layer3_evolution/memory.py) | `layer3_evolution` | `ProgressionEvent`, `BitemporalFactEdge`, `BitemporalEpisodicMemory`, `EmbeddingProvider`, `DeterministicHashEmbedder`, `InferenceBackendEmbedder`, `KnowledgeDocumentChunk`, `HybridKnowledgeStore`, `ProjectContextManager` |
 | [`src/platform_core/layer3_evolution/corpus_harvester.py`](../../src/platform_core/layer3_evolution/corpus_harvester.py) | `layer3_evolution` | `RateLimitError`, `SanitizationResult`, `PromptInjectionSanitizer`, `HarvestedDocument`, `PDFBookExtractor`, `RateLimitedWebHarvester`, `DomainChunker`, `TeacherDistiller`, `HarvestReport`, `CorpusHarvesterPipeline` |
-| [`src/platform_core/data_ingestion/data_factory.py`](../../src/platform_core/data_ingestion/data_factory.py) | `data_ingestion` / `layer3_evolution` | `SyntheticTrajectoryRecord`, `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, `HygieneAuditReport`, `DatasetHygienePipeline` |
-| [`src/platform_core/layer3_evolution/evaluation.py`](../../src/platform_core/layer3_evolution/evaluation.py) | `layer3_evolution` | `BenchmarkDomainSpec`, `PropBench9Suite`, `BenchmarkCaseResult`, `DomainEvaluationMetrics`, `CanaryGateVerdict`, `BenchmarkEvaluator`, `ExecutableBenchmarkReport`, `BenchmarkSuiteRunner` |
-| [`src/platform_core/layer3_evolution/observability.py`](../../src/platform_core/layer3_evolution/observability.py) | `layer3_evolution` | `TraceOutcome`, `FailureRootCauseBucket`, `ProductionTraceRecord`, `ImprovementCycleReport`, `ControlledImprovementCycle` |
+| [`src/platform_core/data_ingestion/data_factory.py`](../../src/platform_core/data_ingestion/data_factory.py) | `data_ingestion` / `layer3_evolution` | `TrainingTrajectoryRecord`, `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, `DatasetHygienePipeline` |
+| [`src/platform_core/layer3_evolution/evaluation.py`](../../src/platform_core/layer3_evolution/evaluation.py) | `layer3_evolution` | `MultiRunBenchmarkResult`, `BenchmarkEvaluator`, `PropBenchSpec`, `PropBench9Suite`, `BenchmarkCaseResult`, `BenchmarkSuiteRunner` |
+| [`src/platform_core/layer3_evolution/observability.py`](../../src/platform_core/layer3_evolution/observability.py) | `layer3_evolution` | `TraceOutcome`, `FailureRootCauseBucket`, `ProductionTraceRecord`, `ControlledImprovementCycle`, `MonitoringService` |
 | [`src/platform_core/layer3_evolution/brain_engine.py`](../../src/platform_core/layer3_evolution/brain_engine.py) | `layer3_evolution` | `BrainSyncReport`, `BrainQueryResult`, `BrainPipelineReport`, `ProjectBrainEngine` |
 | [`src/platform_core/deploy_security/__init__.py`](../../src/platform_core/deploy_security/__init__.py) | `deploy_security` | Re-exports all Deploy & Security public classes |
 | [`src/platform_core/deploy_security/governance.py`](../../src/platform_core/deploy_security/governance.py) | `deploy_security` | `SafetensorsValidationResult`, `SafetensorsValidator`, `LicenseAuditResult`, `LicenseComplianceAuditor`, `SignedToolManifest`, `SignedManifestVerifier`, `CyberGymFirewall`, `K8sAgentSandboxGenerator` |
@@ -55,16 +55,16 @@
 
 | Test File | Test Classes | Test Count | Focus Area |
 | :--- | :--- | :--- | :--- |
-| [`tests/test_platform_core.py`](../../tests/test_platform_core.py) | `TestLayer1IntelligenceAndTraining`, `TestLayer2MCPServersAndSandbox`, `TestLayer2OrchestratorAndAgents`, `TestLayer3EvolutionMemoryAndEvaluation`, `TestDeployAndSupplyChainSecurity`, `TestCustomModelPipelineAndCLI` | 24 | Core 3-layer architecture, 5-stage `CustomModelPipeline`, CLI subcommands, 6 domains, CoW sandbox, Safetensors `<Q` padding, license & HMAC gates |
-| [`tests/test_e2e_harness.py`](../../tests/test_e2e_harness.py) | `TestE2EHarness` + [`tests/e2e/`](../../tests/e2e/) (Tiers 1–4) | 5 | End-to-end CLI harness, contract assertions, and tier 1–4 feature/boundary/cross-feature suites |
+| [`tests/test_platform_core.py`](../../tests/test_platform_core.py) | `TestDeployAndSupplyChainSecurity`, `TestLayer1IntelligenceAndTraining`, `TestLayer2ExecutionAndMCPServers`, `TestLayer3EvolutionMemoryAndCLI` | 20 | Core 3-layer architecture, 5-stage `CustomModelPipeline`, CLI subcommands, CoW sandbox, Safetensors `<Q` padding, license & HMAC gates |
+| [`tests/test_e2e_harness.py`](../../tests/test_e2e_harness.py) | `TestE2EHarnessHardening` + [`tests/e2e/`](../../tests/e2e/) (Tiers 1–4: `152` tests) | 4 + 152 E2E | End-to-end CLI harness hardening, timeouts, thread safety, and 4-tier feature/boundary/pairwise/scenario suites |
 | [`tests/test_inference_and_training.py`](../../tests/test_inference_and_training.py) | `TestInferenceAndTraining` | 5 | `OpenAICompatibleClient`, `MLXLocalBackend`, `MemoryResidencyGuard`, `ModelDownloadManager`, `MLXQLoRATrainer`, `TorchTRLSpecAndRunner` |
-| [`tests/test_memory_rag_and_vision.py`](../../tests/test_memory_rag_and_vision.py) | `TestMemoryRAGAndVision` | 4 | WAL SQLite `BitemporalEpisodicMemory`, FTS5 + vector RRF `HybridKnowledgeStore`, `ProjectContextManager`, binary PNG/JPEG/PDF `inspect_visual_document` |
-| [`tests/test_vuln_intel_and_cyber.py`](../../tests/test_vuln_intel_and_cyber.py) | `TestVulnIntelAndCyber` | 4 | `VulnIntelMCPServer` KEV/EPSS/OSV sync, tainted session block, RoE scope, AST taint SAST scanner |
-| [`tests/test_forensics_spyware.py`](../../tests/test_forensics_spyware.py) | `TestForensicsSpyware` | 4 | `ForensicsMCPServer`, `Stix2IocEngine`, iOS/Android acquisition triage, anti-fabrication SHA-256 verification |
+| [`tests/test_memory_rag_and_vision.py`](../../tests/test_memory_rag_and_vision.py) | `TestMemoryRagAndVision` | 2 | WAL SQLite `BitemporalEpisodicMemory`, FTS5 + vector RRF `HybridKnowledgeStore`, `ProjectContextManager`, binary PNG/JPEG/PDF inspection |
+| [`tests/test_vuln_intel_and_cyber.py`](../../tests/test_vuln_intel_and_cyber.py) | `TestVulnIntelAndCyber` | 3 | `VulnIntelMCPServer` KEV/EPSS/OSV sync, tainted session block, RoE scope, AST taint SAST scanner |
+| [`tests/test_forensics_spyware.py`](../../tests/test_forensics_spyware.py) | `TestForensicsSpywareDetection` | 2 | `ForensicsMCPServer`, `Stix2IocEngine`, iOS/Android acquisition triage, anti-fabrication SHA-256 verification |
 | [`tests/test_benchmarks_and_epistemic.py`](../../tests/test_benchmarks_and_epistemic.py) | `TestBenchmarksAndEpistemic` | 3 | 5 executable `BenchmarkSuiteRunner` suites, `EpistemicAssessment` (`FACT`/`HYPOTHESIS`/`UNCERTAIN`), multi-turn `AgentToolLoop` |
-| [`tests/test_corpus_and_scratch_trainer.py`](../../tests/test_corpus_and_scratch_trainer.py) | `TestCorpusHarvester`, `TestScratchTrainerAndStrategyAdvisor` | 2 | PDF/Web `CorpusHarvesterPipeline`, prompt-injection sanitization, `CreationStrategyAdvisor`, `BytePairTokenizer`, `CompactTransformerSLMTrainer` |
-| [`tests/test_agy_sdk_and_skills.py`](../../tests/test_agy_sdk_and_skills.py) | `TestAgySdkBridge`, `TestCliAndWorkspaceSkillSubprocesses` | 3 | `AgySkillDiscovery` (5 skills + symlink rejection), `AgyStdioMCPBridge` JSON-RPC 2.0, `AgyLocalOrchestrator`, CLI & 5 skill script contracts |
-| [`tests/test_heretic_and_brain.py`](../../tests/test_heretic_and_brain.py) | `TestHereticAbliteratorAndGAIN`, `TestColdFusionAndImatrix`, `TestProjectBrainEngineAndCLI` | 8 | Rank-$k$ refusal subspace extraction, matrix orthogonalization, KL-bounded `.safetensors` abliteration, GAIN adaptive weights, Cold-Fusion (`dare_ties` & `slerp`) merging, IMatrix GGUF/MLX calibration, and `ProjectBrainEngine` |
+| [`tests/test_corpus_and_scratch_trainer.py`](../../tests/test_corpus_and_scratch_trainer.py) | `TestCorpusHarvester`, `TestScratchTrainerAndStrategyAdvisor` | 9 | PDF/Web `CorpusHarvesterPipeline`, prompt-injection sanitization, `CreationStrategyAdvisor`, `BytePairTokenizer`, `CompactTransformerSLMTrainer` |
+| [`tests/test_agy_sdk_and_skills.py`](../../tests/test_agy_sdk_and_skills.py) | `TestAgySdkBridge`, `TestCliAndWorkspaceSkillSubprocesses` | 5 | `AgySkillDiscovery` (5 skills + symlink rejection), `AgyStdioMCPBridge` JSON-RPC 2.0, `AgyLocalOrchestrator`, CLI & 5 skill script contracts |
+| [`tests/test_heretic_and_brain.py`](../../tests/test_heretic_and_brain.py) | `TestHereticAndBrain` | 6 | Rank-$k$ refusal subspace extraction, matrix orthogonalization, KL-bounded `.safetensors` abliteration, GAIN adaptive weights, Cold-Fusion (`dare_ties` & `slerp`) merging, IMatrix GGUF/MLX calibration, and `ProjectBrainEngine` |
 
 ---
 
@@ -82,34 +82,35 @@ All 5 SQLite stores enforce `PRAGMA busy_timeout = 30000`, `PRAGMA journal_mode 
 
 ---
 
-## 4. Unified CLI Subcommand Contract Table (22 Subcommands)
+## 4. Unified CLI Subcommand Contract Table (23 Subcommands)
 
 Invoked via `PYTHONPATH=src .venv/bin/python -m platform_core.cli <subcommand>`:
 
 | # | Subcommand | Key Arguments | Backing Subsystem |
 | :--- | :--- | :--- | :--- |
-| 1 | `evaluate-blueprint` | `--monthly-api-spend`, `--hardware-capex` | `HardwareBreakEvenPlanner`, `ModelRegistry`, `PropBench9Suite` |
-| 2 | `train-model` | `--domain`, `--execution-mode` | `CustomModelPipeline` (5-stage post-training demo) |
-| 3 | `create-custom-model` | `--model-id`, `--domain`, `--dataset-file`, `--output-dir`, `--execution-mode` | `CustomModelPipeline.create_custom_model()` |
-| 4 | `run-workflow` | `--domain`, `--checkpoint-db`, `--external-repo` | `ExecutionLifecycleOrchestrator.run_workflow()` |
-| 5 | `run-custom-model` | `--manifest`, `--payload-file`, `--checkpoint-db` | `ExecutionLifecycleOrchestrator.run_custom_model_task()` |
+| 1 | `evaluate-blueprint` | `--budget` | `HardwareFeasibilityPlanner`, `ModelRegistry`, `PropBench9Suite` |
+| 2 | `train-model` | `--domain`, `--execution-mode` | `CustomModelPipeline` (5-stage post-training pipeline) |
+| 3 | `create-custom-model` | `--model-id`, `--domain`, `--dataset-file`, `--output-dir`, `--execution-mode` | `CustomModelPipeline.build_custom_model()` |
+| 4 | `run-workflow` | `--domain`, `--model-id`, `--manifest`, `--payload-file` | `ExecutionLifecycleOrchestrator.run_workflow()` |
+| 5 | `run-custom-model` | `--manifest`, `--payload-file`, `--domain`, `--model-id` | `CustomModelPipeline.load_custom_model_manifest()` + `ExecutionLifecycleOrchestrator` |
 | 6 | `inspect-data` | `--hex` | `DataAndVisualMCPServer.classify_transformation()` |
-| 7 | `hardware-check` | `--model-id` (optional) | `LocalHardwareDetector`, `HardwareFeasibilityPlanner` |
-| 8 | `download-model` | `--model-id`, `--license`, `--local-dir`, `--dry-run` | `ModelDownloadManager`, `LicenseComplianceAuditor` |
-| 9 | `sync-vuln-db` | `--db-path`, `--feeds`, `--seed-sample` | `VulnIntelMCPServer` |
-| 10 | `audit-vulns` | `--project-dir`, `--db-path`, `--authorized-target` | `VulnIntelMCPServer.audit_project_dependencies()` |
-| 11 | `scan-forensics` | `--target-dir`, `--platform`, `--ioc-file` | `ForensicsMCPServer.triage_forensic_acquisition()` |
-| 12 | `analyze-image` | `--path`, `--mermaid` | `DataAndVisualMCPServer.inspect_visual_document()` |
-| 13 | `run-benchmarks` | `--suite` (`all` or specific suite) | `BenchmarkSuiteRunner.run_all()` |
-| 14 | `harvest-corpus` | `--pdf`, `--url`, `--domain`, `--db-path`, `--distill-output` | `CorpusHarvesterPipeline` |
-| 15 | `recommend-strategy` | `--corpus-tokens`, `--domain`, `--strict-custom-vocab` | `CreationStrategyAdvisor.recommend()` |
-| 16 | `train-scratch-slm` | `--model-id`, `--corpus-file`, `--output-dir`, `--size-tier`, `--steps` | `CompactTransformerSLMTrainer` |
-| 17 | `run-agy-local` | `--prompt`, `--runtime`, `--model`, `--tainted` / `--clean` | `AgyLocalOrchestrator.run_local_agent()` |
-| 18 | `mcp-stdio-bridge` | `--server`, `--tainted` / `--clean` | `AgyStdioMCPBridge.serve_stdio()` |
-| 19 | `brain-query` | `--query`, `--brain-dir`, `--top-k`, `--as-of`, `--output` | `ProjectBrainEngine.query_brain()` |
-| 20 | `heretic-abliterate` | `--input-safetensors`, `--output-safetensors`, `--rank`, `--max-kl`, `--output` | `HereticAbliterator.abliterate_safetensors()` |
-| 21 | `cold-fusion-merge` | `--checkpoints`, `--output-safetensors`, `--method`, `--drop-rate`, `--density`, `--quant-type`, `--output-dir`, `--output` | `ColdFusionModelMerger.merge_safetensors()` + `ImatrixQuantizationCalibrator` |
-| 22 | `brain-pipeline` | `--output-dir`, `--model-id`, `--brain-dir`, `--domain`, `--steps`, `--rank`, `--drop-rate`, `--quant-type`, `--output` | `ProjectBrainEngine.run_brain_training_pipeline()` |
+| 7 | `hardware-check` | *(none)* | `LocalHardwareDetector`, `ModelRegistry` |
+| 8 | `download-model` | `--model-id`, `--license`, `--local-dir` | `ModelDownloadManager`, `LicenseComplianceAuditor` |
+| 9 | `sync-vuln-db` | `--db-path`, `--feeds` | `VulnIntelMCPServer.sync_live_feeds()` |
+| 10 | `scan-forensics` | `--target-dir`, `--platform`, `--stix-file`, `--use-mvt-cli` | `ForensicsMCPServer.analyze_forensic_target()` |
+| 11 | `audit-vulns` | `--project-dir`, `--db-path` | `VulnIntelMCPServer.audit_project_dependencies()` |
+| 12 | `analyze-image` | `--path`, `--prompt`, `--endpoint` | `DataAndVisualMCPServer` |
+| 13 | `run-benchmarks` | `--suites` (`coding`, `reasoning`, `cyber_vuln`, `forensics`, `hallucination_resistance`) | `BenchmarkSuiteRunner.run_all_suites()` |
+| 14 | `transparency-dashboard` | `--session-id` | `ExecutionLifecycleOrchestrator.get_session_status()` |
+| 15 | `harvest-corpus` | `--pdf`, `--book-dir`, `--url`, `--domain`, `--distill-output`, `--rag-db-path` | `CorpusHarvesterPipeline` |
+| 16 | `recommend-strategy` | `--corpus-tokens`, `--domain`, `--custom-vocab`, `--target-params-m` | `CreationStrategyAdvisor.recommend()` |
+| 17 | `train-scratch-slm` | `--model-id`, `--corpus-file`, `--output-dir`, `--tier`, `--steps` | `CompactTransformerSLMTrainer` |
+| 18 | `run-agy-local` | `--prompt`, `--runtime`, `--model`, `--tainted` / `--clean` | `AgyLocalOrchestrator.run_local_agent()` |
+| 19 | `mcp-stdio-bridge` | `--server`, `--tainted` / `--clean` | `AgyStdioMCPBridge.serve_stdio()` |
+| 20 | `brain-query` | `--query`, `--brain-dir`, `--top-k`, `--as-of`, `--output` | `ProjectBrainEngine.query_brain()` |
+| 21 | `heretic-abliterate` | `--input-safetensors`, `--output-safetensors`, `--rank`, `--max-kl`, `--output` | `HereticAbliterator.abliterate_safetensors()` |
+| 22 | `cold-fusion-merge` | `--checkpoints`, `--output-safetensors`, `--method`, `--drop-rate`, `--density`, `--quant-type`, `--output-dir`, `--output` | `ColdFusionModelMerger.merge_safetensors()` + `ImatrixQuantizationCalibrator` |
+| 23 | `brain-pipeline` | `--output-dir`, `--model-id`, `--brain-dir`, `--domain`, `--steps`, `--rank`, `--drop-rate`, `--quant-type`, `--output` | `ProjectBrainEngine.run_brain_training_pipeline()` |
 
 ---
 

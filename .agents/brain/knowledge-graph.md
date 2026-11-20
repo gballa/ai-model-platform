@@ -23,7 +23,7 @@ The following graph traces how the CLI, Layer 1 Intelligence, Layer 2 Execution,
 
 ```mermaid
 flowchart LR
-    CLI["cli.py (22 Subcommands)"]
+    CLI["cli.py (23 Subcommands)"]
 
     subgraph L1["Layer 1: layer1_intelligence"]
         Models["models.py (ModelRegistry, LocalHardwareDetector)"]
@@ -122,7 +122,7 @@ flowchart LR
 | `L2.mcp_tools` | Layer 2 | [`src/platform_core/layer2_execution/mcp_tools.py`](../../src/platform_core/layer2_execution/mcp_tools.py) | `CodeGraphMCPServer`, `BinRevMCPServer`, `DefensiveCyberMCPServer`, `DataAndVisualMCPServer` | `L2.sandbox` | Streaming `zlib.decompressobj` bounded decompression; finite-sample Shannon entropy normalized by $\min(8.0, \log_2 N)$ |
 | `L2.vuln_intel` | Layer 2 | [`src/platform_core/layer2_execution/vuln_intel_mcp.py`](../../src/platform_core/layer2_execution/vuln_intel_mcp.py) | `VulnIntelMCPServer`, `AuthorizationScope`, `VulnFindingClassification`, `VulnerabilityIntelligenceRecord` | Python stdlib `sqlite3`, `urllib.request` | Blocks `sync_live_feeds()` when `session_tainted=True`; enforces authorized target scope (RoE) |
 | `L2.forensics` | Layer 2 | [`src/platform_core/layer2_execution/forensics_mcp.py`](../../src/platform_core/layer2_execution/forensics_mcp.py) | `ForensicsMCPServer`, `Stix2IocEngine`, `ForensicVerdict`, `ForensicIndicator`, `ForensicFinding`, `ForensicAssessment` | Python stdlib `hashlib`, `plistlib`, `sqlite3` | Rejects `CONFIRMED_IOC_MATCH` without real `artifact_path` + 64-hex `artifact_sha256`; records `visibility_limitations` |
-| `L2.agents` | Layer 2 | [`src/platform_core/layer2_execution/agents.py`](../../src/platform_core/layer2_execution/agents.py) | `BaseAgentNode`, `LeadOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent`, `AgentToolLoop` | `L1.inference`, `L2.state`, `L2.mcp_tools`, `L2.vuln_intel`, `L2.forensics`, `L2.sandbox` | Executor vs. Verifier separation: only `IndependentVerifierAgent` has `can_mark_completed=True` |
+| `L2.agents` | Layer 2 | [`src/platform_core/layer2_execution/agents.py`](../../src/platform_core/layer2_execution/agents.py) | `BaseSpecialistAgent`, `PrincipalOrchestratorAgent`, `SoftwareEngineeringAgent`, `ReverseEngineeringAgent`, `DefensiveCyberAgent`, `MultimodalDataAgent`, `IndependentVerifierAgent`, `AgentToolLoop` | `L1.inference`, `L2.state`, `L2.mcp_tools`, `L2.vuln_intel`, `L2.forensics`, `L2.sandbox` | Executor vs. Verifier separation: only `IndependentVerifierAgent` has `can_mark_completed=True` |
 | `L2.orchestrator` | Layer 2 | [`src/platform_core/layer2_execution/orchestrator.py`](../../src/platform_core/layer2_execution/orchestrator.py) | `ExecutionLifecycleOrchestrator`, `LifecycleStep` | `L1.models`, `L1.router`, `L2.agents`, `L2.state`, `L2.sandbox`, `L3.memory`, `deploy_security.governance` | 10-step execution state machine; automatic `TAINTED_UNTRUSTED` propagation at Step 1; HMAC tool signing at Step 4 |
 | `L2.agy_bridge` | Layer 2 | [`src/platform_core/layer2_execution/agy_sdk_bridge.py`](../../src/platform_core/layer2_execution/agy_sdk_bridge.py) | `AgySkillDiscovery`, `AgyStdioMCPBridge`, `AgyLocalOrchestrator`, `AgyLocalAgentSpec`, `AgyExecutionResult` | `L1.inference`, `L2.agents`, `L2.mcp_tools`, `L2.vuln_intel`, `L2.forensics` | Rejects symlinked skills; defaults `session_tainted=True`; bounded JSON-RPC stdio lines (`MAX_JSONRPC_LINE_BYTES`); runs `IndependentVerifierAgent` before marking `COMPLETED` |
 | `L3.memory` | Layer 3 | [`src/platform_core/layer3_evolution/memory.py`](../../src/platform_core/layer3_evolution/memory.py) | `BitemporalEpisodicMemory`, `HybridKnowledgeStore`, `ProjectContextManager`, `DeterministicHashEmbedder`, `InferenceBackendEmbedder` | Python stdlib `sqlite3`, `L1.inference` | 200K-token rule (`< 200,000` -> `DIRECT_PREFIX_CACHE`; `>= 200,000` -> `HYBRID_PGVECTORSCALE_SEARCH`); bitemporal valid/transaction time |
@@ -143,7 +143,7 @@ Every task processed by `ExecutionLifecycleOrchestrator.run_workflow()` traverse
 flowchart TD
     S1["STEP_1_INGEST_AND_TAINT: Inspect external_repo / untrusted_binary -> set TAINTED_UNTRUSTED & strip network_egress/admin_deploy"]
     S2["STEP_2_RETRIEVE_CONTEXT: Query BitemporalEpisodicMemory & HybridKnowledgeStore (<200K DIRECT_PREFIX_CACHE vs >=200K HYBRID_PGVECTORSCALE_SEARCH)"]
-    S3["STEP_3_DECOMPOSE_AND_ROUTE: LeadOrchestratorAgent + AdaptiveModelRouter select ModelPool & ThinkingMode (NON_THINK / THINK_HIGH / THINK_MAX)"]
+    S3["STEP_3_DECOMPOSE_AND_ROUTE: PrincipalOrchestratorAgent + AdaptiveModelRouter select ModelPool & ThinkingMode (NON_THINK / THINK_HIGH / THINK_MAX)"]
     S4["STEP_4_MINT_SCOPED_CREDENTIALS: SignedManifestVerifier mints ephemeral HMAC-SHA256 MCP tool manifest scoped to task & taint level"]
     S5["STEP_5_PROVISION_SANDBOX: FirecrackerSandboxManager creates isolated workspace & baseline CoW snapshot"]
     S6["STEP_6_EXECUTE_SPECIALIST: Domain Executor Agent runs tool loop (can_mark_completed=False)"]

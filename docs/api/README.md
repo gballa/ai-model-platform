@@ -16,10 +16,11 @@ Document the public Python API exports, CLI subcommand contracts, JSON/JSONL fil
 
 ## 3. Required Configuration
 
-Import public symbols from the four package namespaces:
+Import public symbols from the five package namespaces:
 - `platform_core.layer1_intelligence` ([`__init__.py`](../../src/platform_core/layer1_intelligence/__init__.py))
 - `platform_core.layer2_execution` ([`__init__.py`](../../src/platform_core/layer2_execution/__init__.py))
 - `platform_core.layer3_evolution` ([`__init__.py`](../../src/platform_core/layer3_evolution/__init__.py))
+- `platform_core.data_ingestion` ([`__init__.py`](../../src/platform_core/data_ingestion/__init__.py))
 - `platform_core.deploy_security` ([`__init__.py`](../../src/platform_core/deploy_security/__init__.py))
 
 ---
@@ -74,7 +75,7 @@ Consumed by `platform-cli run-workflow --payload-file <path>` and `run-custom-mo
 
 ### 4.4 Epistemic Ledger & CLI Endpoints
 - **`EpistemicAssessment`** (`state.py`): Attached to `PlatformState.epistemic_assessment` at Step 10 (`FACT`, `HYPOTHESIS`, `UNCERTAIN` claims via `EpistemicStatus`, `EpistemicClaim`, `requires_human_verification`).
-- **Additional Local & Security CLI Subcommands**:
+- **Additional Local, Security, Creation, Brain & Heretic CLI Subcommands (23 Total)**:
   - `hardware-check`: Host hardware detection (`LocalHardwareDetector.detect()`) and local model lineup.
   - `download-model --model-id <repo> --license <spdx> --local-dir <dir>`: License-gated download (`ModelDownloadManager`).
   - `sync-vuln-db --db-path <sqlite> --feeds kev epss osv`: Sync public vulnerability feeds (`VulnIntelMCPServer.sync_live_feeds()`).
@@ -82,6 +83,16 @@ Consumed by `platform-cli run-workflow --payload-file <path>` and `run-custom-mo
   - `scan-forensics --target-dir <dir> --platform {auto,ios,android,host} [--stix-file <json>] [--use-mvt-cli]`: Digital forensics & spyware IOC triage (`ForensicsMCPServer`).
   - `analyze-image --path <file> [--prompt <text>] [--endpoint <url>]`: Image/PDF inspection (`DataAndVisualMCPServer`).
   - `run-benchmarks [--suites coding reasoning cyber_vuln forensics hallucination_resistance]`: Execute live `BenchmarkSuiteRunner` suites.
+  - `transparency-dashboard --session-id <id>`: Inspect session taint level, task status, and lifecycle step progress (`run_transparency_dashboard`).
+  - `harvest-corpus [--pdf <path> ...] [--book-dir <dir> ...] [--url <url> ...]`: Harvest & sanitize books/URLs into `HybridKnowledgeStore` and distilled JSONL (`CorpusHarvesterPipeline`).
+  - `recommend-strategy --corpus-tokens <int> [--domain <domain>]`: Recommend RAG vs. QLoRA vs. scratch SLM vs. multi-GPU (`CreationStrategyAdvisor`).
+  - `train-scratch-slm --model-id <id> --output-dir <dir> ...`: Train BPE tokenizer + compact causal Transformer SLM (`CompactTransformerSLMTrainer`).
+  - `run-agy-local --prompt <text> [--runtime {local_openai,litert}]`: Run local Antigravity SDK agent or stdlib fallback gated by `IndependentVerifierAgent`.
+  - `mcp-stdio-bridge [--server <name> ...] [--vuln-db-path <path>]`: Serve JSON-RPC 2.0 MCP tools over stdio (`AgyStdioMCPBridge`, 18 clean / 17 tainted tools).
+  - `brain-query --query <text> [--brain-dir .agents/brain] [--top-k 5] [--as-of <ts>]`: Sync and query `.agents/brain/` RAG + bitemporal facts (`ProjectBrainEngine`).
+  - `heretic-abliterate --input-safetensors <in> --output-safetensors <out> [--rank 2] [--max-kl 0.05]`: Run Arbitrary-Rank Ablation (`HereticAbliterator`).
+  - `cold-fusion-merge --checkpoints <p1 p2 ...> --output-safetensors <out> [--method {dare_ties,slerp}]`: Merge checkpoints + build optional IMatrix plan (`ColdFusionModelMerger`).
+  - `brain-pipeline --output-dir <dir> [--model-id heretic-brain-slm]`: End-to-end Brain -> GAIN -> Heretic -> Cold-Fusion -> IMatrix pipeline.
 
 ### 4.3 JSONL/JSON Schema Contract 3: Training Trajectories (`trajectories.jsonl`)
 Consumed by `CustomModelPipeline.load_trajectories_from_file()` (see [`examples/sample_custom_trajectories.jsonl`](../../examples/sample_custom_trajectories.jsonl)):

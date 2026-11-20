@@ -2,12 +2,12 @@
   "schema_version": "1.0.0",
   "project_id": "platform-core",
   "project_version": "1.0.0",
-  "last_synchronized": "2026-11-19",
+  "last_synchronized": "2026-11-20",
   "summary": "End-to-end local-first Python 3.11+ platform for creating, post-training, verifying, routing, and executing multi-agent AI models across 8 technical intelligence domains.",
   "metrics": {
-    "source_modules": 22,
+    "source_modules": 24,
     "test_modules": 10,
-    "unit_and_integration_tests": 205,
+    "unit_and_integration_tests": 211,
     "executable_benchmark_suites": 5,
     "supported_domains": 8,
     "model_pools": 4,
@@ -15,7 +15,7 @@
     "mcp_servers": 6,
     "mcp_tools_clean": 18,
     "mcp_tools_tainted": 17,
-    "cli_subcommands": 22,
+    "cli_subcommands": 23,
     "workspace_skills": 5,
     "adrs": 9,
     "architectural_invariants": 7
@@ -27,7 +27,7 @@
       "category": "entrypoint",
       "layer": "CLI",
       "path": "src/platform_core/cli.py",
-      "summary": "22 subcommands exposing blueprint ROI, custom model post-training, scratch SLM training, Heretic refusal abliteration, Cold-Fusion multi-model merging, Project Brain RAG/bitemporal querying and SLM pipeline, corpus harvesting, 10-step domain workflows, forensics, vuln intel, benchmarks, and Antigravity SDK stdio bridge.",
+      "summary": "23 subcommands exposing blueprint ROI, custom model post-training, scratch SLM training, Heretic refusal abliteration, Cold-Fusion multi-model merging, Project Brain RAG/bitemporal querying and SLM pipeline, corpus harvesting, 10-step domain workflows, transparency dashboard, forensics, vuln intel, benchmarks, and Antigravity SDK stdio bridge.",
       "exports": ["build_parser", "main"]
     },
     {
@@ -100,7 +100,7 @@
       "layer": "Layer 2",
       "path": "src/platform_core/layer2_execution/orchestrator.py",
       "summary": "Coordinates the 10-step verified execution state machine across all 8 domains with automatic taint propagation, CoW rollback retries, and epistemic ledger commits.",
-      "exports": ["ExecutionLifecycleOrchestrator", "LifecycleStep", "WorkflowExecutionReport"]
+      "exports": ["ExecutionLifecycleOrchestrator"]
     },
     {
       "id": "l2.agents",
@@ -109,7 +109,7 @@
       "layer": "Layer 2",
       "path": "src/platform_core/layer2_execution/agents.py",
       "summary": "Enforces Executor (can_mark_completed=False) vs. IndependentVerifierAgent (can_mark_completed=True) separation and multi-turn AgentToolLoop.",
-      "exports": ["LeadOrchestratorAgent", "SoftwareEngineeringAgent", "ReverseEngineeringAgent", "DefensiveCyberAgent", "MultimodalDataAgent", "IndependentVerifierAgent", "AgentToolLoop"]
+      "exports": ["BaseSpecialistAgent", "PrincipalOrchestratorAgent", "SoftwareEngineeringAgent", "ReverseEngineeringAgent", "DefensiveCyberAgent", "MultimodalDataAgent", "IndependentVerifierAgent", "AgentToolLoop"]
     },
     {
       "id": "l2.state",
@@ -199,7 +199,7 @@
       "layer": "Layer 3",
       "path": "src/platform_core/layer3_evolution/evaluation.py",
       "summary": "Runs 5 live deterministic benchmark suites across SWE, Cyber, VulnIntel, Forensics, and BinRev/Protocol/Visual and evaluates 95% CI pass@k, pass^4, and Canary Gate promotion.",
-      "exports": ["PropBench9Suite", "BenchmarkEvaluator", "BenchmarkSuiteRunner", "CanaryGateVerdict"]
+      "exports": ["PropBench9Suite", "BenchmarkEvaluator", "BenchmarkSuiteRunner", "MultiRunBenchmarkResult"]
     },
     {
       "id": "l3.observability",
@@ -208,7 +208,7 @@
       "layer": "Layer 3",
       "path": "src/platform_core/layer3_evolution/observability.py",
       "summary": "Closes the self-improvement loop from production trace telemetry through root-cause bucketing, decontamination, retraining, and canary promotion.",
-      "exports": ["ControlledImprovementCycle", "ProductionTraceRecord", "FailureRootCauseBucket"]
+      "exports": ["ControlledImprovementCycle", "MonitoringService", "ProductionTraceRecord", "FailureRootCauseBucket"]
     },
     {
       "id": "l3.brain_engine",

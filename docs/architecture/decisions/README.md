@@ -15,6 +15,9 @@ This directory records the foundational architectural decisions implemented in `
 | [ADR-0005](ADR-0005-local-first-open-weight-forensics-and-vuln-intel.md) | Local-First Open-Weight Lineup, Offline Vulnerability Intelligence Mirror, & Anti-Fabrication Spyware Forensics | Accepted | `layer1_intelligence/inference.py`, `layer2_execution/vuln_intel_mcp.py`, `layer2_execution/forensics_mcp.py` |
 | [ADR-0006](ADR-0006-local-ai-creator-and-antigravity-sdk.md) | Zero-Dependency Local AI Model Creator, Corpus Harvester, Compact Scratch SLM, & Google Antigravity SDK Bridge | Accepted | `layer3_evolution/corpus_harvester.py`, `layer1_intelligence/scratch_trainer.py`, `layer2_execution/agy_sdk_bridge.py`, `deploy_security/governance.py` |
 
+> [!NOTE]
+> Proposed follow-on ADRs (`ADR-0007`: Multi-Region SQLite Checkpointing, `ADR-0008`: Cross-Platform Hardware Abstraction for L1 Pools, and `ADR-0009`: Asynchronous Model Rollout) currently reside under [`.agents/artifacts/security-audit/arch_upgrades/ADRs/`](../../../.agents/artifacts/security-audit/arch_upgrades/ADRs/ADR-0007-multi-region-sqlite-checkpointing.md) pending formal promotion into this directory upon acceptance.
+
 ---
 
 ## ADR Template & Maintenance Rules

@@ -18,7 +18,7 @@
 
 ## 1. Overview
 
-`ExecutionLifecycleOrchestrator.run_workflow()` executes tasks across six domains (`swe`, `cyber`, `binrev`, `data_protocol`, `architecture`, `visual_ocr`) through a deterministic 10-step state machine (`LifecycleStep` enum `1..10`). Every step saves a JSON-serialized `PlatformState` checkpoint to `SQLiteStateCheckpointer` and appends an OpenTelemetry-style span to `state.telemetry_spans`.
+`ExecutionLifecycleOrchestrator.run_workflow()` executes tasks across eight domains (`swe`, `cyber`, `binrev`, `data_protocol`, `architecture`, `visual_ocr`, `vuln_intel`, `forensics`) through a deterministic 10-step state machine (`LifecycleStep` enum `1..10`). Every step saves a JSON-serialized `PlatformState` checkpoint to `SQLiteStateCheckpointer` and appends an OpenTelemetry-style span to `state.telemetry_spans`.
 
 ---
 
@@ -58,6 +58,8 @@ flowchart TB
 - Calls `PrincipalOrchestratorAgent.decompose_objective(state)` to populate `state.subtasks` with domain-appropriate `SubTask` nodes and minimal `scoped_tools`:
   - `swe` / `architecture` -> `software_engineering` (`code_graph.query_symbol`, `code_graph.apply_str_replace_edit`)
   - `cyber` -> `defensive_cyber` (`cyber.scan_cpg_taint`, `code_graph.apply_str_replace_edit`)
+  - `vuln_intel` -> `defensive_cyber` (`vuln_intel.audit_project`, `cyber.scan_cpg_taint`)
+  - `forensics` -> `defensive_cyber` (`forensics.analyze_target`)
   - `binrev` -> `reverse_engineering` (`binrev.inspect_binary`, `binrev.run_two_phase_sk2_decompile`)
   - `data_protocol` / `visual_ocr` -> `multimodal_data` (`data_visual.classify_transformation`, `data_visual.synthesize_kaitai_struct_ksy`, `data_visual.ground_visual_observations`)
 - Emits span `"lifecycle.step2_pre_index_and_decompose"` and saves checkpoint #2.
@@ -117,9 +119,11 @@ You can supply a dynamic `attempt_plan_provider: Callable[[int, list[str]], dict
 ## 6. Verified Execution Commands
 
 ```bash
-# Run built-in 10-step workflows across all 6 domains
+# Run built-in 10-step workflows across all 8 domains
 PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain swe
 PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain cyber
+PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain vuln_intel
+PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain forensics
 PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain binrev
 PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain data_protocol
 PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain architecture

@@ -80,7 +80,7 @@ finally:
 ## 6. Expected Results
 
 - The environment check prints Python `3.11+` and SQLite `3.x`.
-- `platform_core.cli --help` lists all 6 subcommands (`evaluate-blueprint`, `train-model`, `create-custom-model`, `run-workflow`, `run-custom-model`, `inspect-data`).
+- `platform_core.cli --help` lists all 23 subcommands (`evaluate-blueprint`, `train-model`, `create-custom-model`, `run-workflow`, `run-custom-model`, `inspect-data`, `hardware-check`, `download-model`, `sync-vuln-db`, `scan-forensics`, `audit-vulns`, `analyze-image`, `run-benchmarks`, `transparency-dashboard`, `harvest-corpus`, `recommend-strategy`, `train-scratch-slm`, `run-agy-local`, `mcp-stdio-bridge`, `brain-query`, `heretic-abliterate`, `cold-fusion-merge`, `brain-pipeline`).
 - The debugging script prints 7 telemetry spans (`step1_ingest_and_taint`, `step2_pre_index_and_decompose`, `step3_routing`, `step4_scoped_mcp_binding`, `step7_observation`, `step8_independent_verification`, `step10_artifact_delivery`) and restores the exact Step 3 `PlatformState` snapshot.
 
 ---

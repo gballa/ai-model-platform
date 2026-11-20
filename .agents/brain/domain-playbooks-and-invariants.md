@@ -77,7 +77,7 @@ Every agent modifying or executing code in `platform-core` MUST preserve these 7
 
 - **CLI Entrypoint**: `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain swe`
 - **Specialist Agent**: `SoftwareEngineeringAgent` -> verified by `IndependentVerifierAgent`
-- **Model Pool**: `ModelPool.PRIMARY_SWE_CYBER` (`Qwen/Qwen3.5-35B-A3B` / Apache-2.0 Qwen3.8 coder)
+- **Model Pool**: `ModelPool.POOL_2_SWE_CYBER` (Apache-2.0 Qwen3.8 coder GGUF / custom `ModelRegistry` overrides)
 - **MCP Tool**: `CodeGraphMCPServer.query_impact_cone(changed_symbols, max_hops=2)`
 - **Reward Oracle (`SWECyberRewardOracle.compute_reward`)**:
   $$R_{\text{swe}} = 0.65 \cdot r_{\text{pass\_to\_pass}} + 0.35 \cdot r_{\text{fail\_to\_pass}} - \text{penalty}_{\text{lint/complexity}}$$
@@ -89,7 +89,7 @@ Every agent modifying or executing code in `platform-core` MUST preserve these 7
 
 - **CLI Entrypoint**: `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain cyber`
 - **Specialist Agent**: `DefensiveCyberAgent` -> verified by `IndependentVerifierAgent`
-- **Model Pool**: `ModelPool.PRIMARY_SWE_CYBER`
+- **Model Pool**: `ModelPool.POOL_2_SWE_CYBER`
 - **MCP Tool**: `DefensiveCyberMCPServer.run_sast_taint_scan(source_code, filename)`
 - **AST Capabilities**: Detects tainted data flow into `eval`, `exec`, `os.system`, `subprocess.*(shell=True)`, `pickle.loads`, `yaml.load`, and raw SQL formatting (`CWE-78`, `CWE-89`, `CWE-94`, `CWE-502`).
 - **Reward Oracle**: Requires both exploit PoC neutralization (`r_sec = 1.0`) and 100% functional test retention.
@@ -124,7 +124,7 @@ Every agent modifying or executing code in `platform-core` MUST preserve these 7
 
 - **CLI Entrypoint**: `PYTHONPATH=src .venv/bin/python -m platform_core.cli run-workflow --domain binrev`
 - **Specialist Agent**: `ReverseEngineeringAgent` -> verified by `IndependentVerifierAgent`
-- **Model Pool**: `ModelPool.SYSTEMS_BINREV` (`DeepSeek-Coder-V3.5-32B-BinRev`)
+- **Model Pool**: `ModelPool.POOL_3_BINREV` (`Qwen3.8-27B-BinRev`)
 - **MCP Tool**: `BinRevMCPServer.decompile_and_extract_cfg(binary_hex, arch="x86_64")`
 - **Reward Oracle (`BinRevDecompileRewardOracle.compute_reward`)**:
   $$R_{\text{binrev}} = 0.20 \cdot r_{\text{compile}} + 0.50 \cdot r_{\text{io\_equiv}} + 0.20 \cdot \text{IoU}_{\text{dwarf\_bytes}} + 0.10 \cdot \text{sim}_{\text{cfg}}$$

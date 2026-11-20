@@ -23,7 +23,7 @@ flowchart TB
     subgraph Core["platform-core (In-Process Python 3.11+)"]
         Orch["ExecutionLifecycleOrchestrator"]
         Signer["SignedManifestVerifier (HMAC-SHA256)"]
-        MCP["4 Native MCP Servers\n(CodeGraph, BinRev, DefensiveCyber, DataAndVisual)"]
+        MCP["6 Native MCP Servers\n(CodeGraph, BinRev, DefensiveCyber, DataAndVisual, VulnIntel, Forensics)"]
         ServCfg["ServingEndpointConfig"]
         TrainSpec["DistributedTrainingSpecBuilder"]
         K8sGen["K8sAgentSandboxGenerator"]
@@ -65,6 +65,11 @@ At Step 4 (`STEP_4_SCOPED_MCP_BINDING`), `ExecutionLifecycleOrchestrator` verifi
 | `data_visual.classify_transformation` | `data-visual-mcp` | `parse_data` | `DataAndVisualMCPServer.classify_transformation` |
 | `data_visual.synthesize_kaitai_struct_ksy` | `data-visual-mcp` | `parse_data` | `DataAndVisualMCPServer.synthesize_kaitai_struct_ksy` |
 | `data_visual.ground_visual_observations` | `data-visual-mcp` | `ground_visual` | `DataAndVisualMCPServer.ground_visual_observations` |
+| `vuln_intel.audit_project` | `vuln-intel-mcp` | `audit_security` | `VulnIntelMCPServer.audit_project_dependencies` |
+| `forensics.analyze_target` | `forensics-mcp` | `audit_security` | `ForensicsMCPServer.analyze_forensic_target` |
+
+> [!NOTE]
+> Above are the `10` HMAC-SHA256 signed tool manifests enforced inside `ExecutionLifecycleOrchestrator` (`orchestrator.py`). For external local agent runtimes, `AgyStdioMCPBridge` (`agy_sdk_bridge.py`, `platform-cli mcp-stdio-bridge`) exposes **18 JSON-RPC 2.0 stdio tools** across all 6 MCP servers when clean (`17` when `session_tainted=True`, stripping `vuln_sync_live_feeds`).
 
 ### Verification Invariants
 1. **HMAC-SHA256 Integrity**: `SignedManifestVerifier` computes `hmac.new(key, manifest.canonical_payload(), hashlib.sha256).hexdigest()` (requiring `len(signing_key) >= 16` bytes) and verifies with constant-time `hmac.compare_digest()`.

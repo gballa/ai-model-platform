@@ -10,7 +10,7 @@
 1. [Module Responsibilities & Boundaries](#1-module-responsibilities--boundaries)
 2. [`state.py` — Typed `PlatformState` & `SQLiteStateCheckpointer`](#2-statepy--typed-platformstate--sqlitestatecheckpointer)
 3. [`sandbox.py` — `FirecrackerSandboxManager` & `<15ms` CoW Snapshots](#3-sandboxpy--firecrackersandboxmanager--15ms-cow-snapshots)
-4. [`mcp_tools.py` — Four Deterministic Program Analysis & Forensics Servers](#4-mcp_toolspy--four-deterministic-program-analysis--forensics-servers)
+4. [`mcp_tools.py`, `vuln_intel_mcp.py`, `forensics_mcp.py` — Six Deterministic Analysis, Vuln Intel & Forensics Servers](#4-mcp_toolspy-vuln_intel_mcppy-forensics_mcppy--six-deterministic-analysis-vuln-intel--forensics-servers)
 5. [`agents.py` — Six Consolidated Specialist Agent Nodes](#5-agentspy--six-consolidated-specialist-agent-nodes)
 6. [`orchestrator.py` — `ExecutionLifecycleOrchestrator` (Steps 1–10)](#6-orchestratorpy--executionlifecycleorchestrator-steps-110)
 7. [`agy_sdk_bridge.py` — Google Antigravity SDK Bridge, Stdio MCP Server & Skill Discovery](#7-agy_sdk_bridgepy--google-antigravity-sdk-bridge-stdio-mcp-server--skill-discovery)
@@ -55,9 +55,9 @@
 
 ---
 
-## 4. `mcp_tools.py` — Four Deterministic Program Analysis & Forensics Servers
+## 4. `mcp_tools.py`, `vuln_intel_mcp.py`, `forensics_mcp.py` — Six Deterministic Analysis, Vuln Intel & Forensics Servers
 
-1. **`CodeGraphMCPServer`**:
+1. **`CodeGraphMCPServer`** (`mcp_tools.py`):
    - Supports `.py`, `.ts`, `.js`, `.go`, `.rs`, `.c`, `.cpp`, `.h`, `.java`.
    - `index_file(file_path, source_code)`: 16-byte BLAKE2b content cache in SQLite `indexed_files`; parses Python AST (`_parse_python_ast`) or balanced-brace polyglot CST (`_parse_polyglot_cst`) into `code_symbols`.
    - `query_symbol(symbol_name, fallback_corpus=None)`: Returns `status="Resolved"` with definitions and inverse callers, or `status="NoConfidentMatch"` with line-level `ripgrep_fallback_hits`.
@@ -75,6 +75,10 @@
    - `synthesize_kaitai_struct_ksy(format_id, magic_bytes, fields, sample_payload)`: Generates Kaitai `.ksy` YAML and checks `full_byte_coverage`.
    - `ground_visual_observations(regions, min_confidence=0.80)`: Separates grounded regions from low-confidence/obscured regions requiring `zoom_crop_region`.
    - `bundle_computer_use_actions(raw_actions, human_optimal_steps)`: Batches up to 4 deterministic actions per turn to achieve `step_efficiency_ratio <= 1.8`.
+5. **`VulnIntelMCPServer`** (`vuln_intel_mcp.py`):
+   - SQLite WAL mirror indexing CISA KEV, FIRST EPSS, and OSV/NVD records; blocks `sync_live_feeds()` on `session_tainted=True`, enforces `AuthorizationScope` Rules of Engagement, and correlates polyglot dependencies + AST taint (`CONFIRMED_VULNERABILITY` vs. `POTENTIAL_WEAKNESS`).
+6. **`ForensicsMCPServer` & `Stix2IocEngine`** (`forensics_mcp.py`):
+   - Ingests STIX 2.1 IOCs (`Pegasus`, `Predator`, `Graphite`, `Candiru`, `TriangleDB`) and triages iOS/Android/Host acquisitions, rejecting `CONFIRMED_IOC_MATCH` lacking an existing `artifact_path` and 64-hex `artifact_sha256` and recording `visibility_limitations`.
 
 ---
 

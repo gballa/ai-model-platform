@@ -6,7 +6,7 @@
 
 1. [Executive Summary](#1-executive-summary)
 2. [Problem Statement & Strategic Rationale](#2-problem-statement--strategic-rationale)
-3. [Six Target Technical Domains](#3-six-target-technical-domains)
+3. [Eight Target Technical Domains](#3-eight-target-technical-domains)
 4. [Three-Layer Hybrid Intelligence Architecture](#4-three-layer-hybrid-intelligence-architecture)
 5. [Scenario Economics & Hardware Feasibility](#5-scenario-economics--hardware-feasibility)
 6. [Implemented vs. Cluster-Deployment Scope](#6-implemented-vs-cluster-deployment-scope)
@@ -37,15 +37,17 @@ Engineering organizations building autonomous coding, cybersecurity, and reverse
 
 ---
 
-## 3. Six Target Technical Domains
+## 3. Eight Target Technical Domains
 
-`CustomModelPipeline.VALID_DOMAINS` and `ExecutionLifecycleOrchestrator` support six specialized domains:
+`CustomModelPipeline.VALID_DOMAINS` and `ExecutionLifecycleOrchestrator` support eight specialized domains:
 
 | Domain Identifier | Routed Model Pool | Assigned Specialist Agent | Primary Deterministic MCP Tools | Verification Gate (`IndependentVerifierAgent`) |
 | :--- | :--- | :--- | :--- | :--- |
 | `swe` | `POOL_2_SWE_CYBER` | `SoftwareEngineeringAgent` | `CodeGraphMCPServer` (`index_file`, `query_symbol`, `apply_str_replace_edit`) | AST syntax validation + zero-exit unit/regression test execution in sandbox |
 | `architecture` | `POOL_1_ORCHESTRATOR` | `SoftwareEngineeringAgent` (decomposed by `PrincipalOrchestratorAgent`) | `CodeGraphMCPServer` (`analyze_blast_radius`, `query_symbol`, `apply_str_replace_edit`) | AST syntax validation + integration test execution in sandbox |
 | `cyber` | `POOL_2_SWE_CYBER` | `DefensiveCyberAgent` | `DefensiveCyberMCPServer` (`scan_cpg_taint`, `verify_dual_gate_patch`) + `CodeGraphMCPServer` | `SecVerifier` Dual-Gate: Gate 1 (`0` remaining CWEs & PoC crash eliminated) + Gate 2 (`100%` pass-to-pass regression tests) |
+| `vuln_intel` | `POOL_2_SWE_CYBER` | `DefensiveCyberAgent` | `VulnIntelMCPServer` (`audit_project_dependencies`, OSV/KEV/EPSS lookup) + `CodeGraphMCPServer` | Rules-of-Engagement (`AuthorizationScope`) enforced + `CONFIRMED_VULNERABILITY` vs. `POTENTIAL_WEAKNESS` separated |
+| `forensics` | `POOL_2_SWE_CYBER` | `DefensiveCyberAgent` | `ForensicsMCPServer` (`analyze_forensic_target`, `Stix2IocEngine`) | Anti-fabrication gate: every `CONFIRMED_IOC_MATCH` backed by real `artifact_path` + 64-hex `artifact_sha256` & `visibility_limitations` |
 | `binrev` | `POOL_3_BINREV` | `ReverseEngineeringAgent` | `BinRevMCPServer` (`inspect_binary`, `run_two_phase_sk2_decompile`) | Phase 2 decompiled code is non-empty and contains zero unresolved `goto LAB_` branches |
 | `data_protocol` | `POOL_2_SWE_CYBER` | `MultimodalDataAgent` | `DataAndVisualMCPServer` (`classify_transformation`, `safe_decode_or_decompress`, `synthesize_kaitai_struct_ksy`) | Kaitai `.ksy` schema achieves `full_byte_coverage == True` (`100%` byte coverage) |
 | `visual_ocr` | `POOL_4_VISUAL_OCR` | `MultimodalDataAgent` | `DataAndVisualMCPServer` (`ground_visual_observations`, `bundle_computer_use_actions`, `synthesize_kaitai_struct_ksy`) | `full_byte_coverage == True` AND `epistemic_hallucination_guard_active == True` |
@@ -56,9 +58,9 @@ Engineering organizations building autonomous coding, cybersecurity, and reverse
 
 | Layer | Package | Core Responsibility |
 | :--- | :--- | :--- |
-| **Layer 1: Intelligence & Model Creation** | [`platform_core.layer1_intelligence`](../../src/platform_core/layer1_intelligence/README.md) | 4-Pool `ModelRegistry`, `HardwareFeasibilityPlanner`, `AdaptiveModelRouter`, `BestOfNVerifierPruner`, `ServingEndpointConfig`, `RadixPrefixCacheSimulator`, and 5-Stage Post-Training (`CustomModelPipeline`, `GRPOTrainer`, `MOPDDistiller`, `DPOTrainer`, reward oracles). |
-| **Layer 2: Stateful Execution & Sandboxing** | [`platform_core.layer2_execution`](../../src/platform_core/layer2_execution/README.md) | `PlatformState`, `SQLiteStateCheckpointer`, `FirecrackerSandboxManager` (CoW snapshots), 4 MCP tool servers (`CodeGraph`, `BinRev`, `DefensiveCyber`, `DataAndVisual`), 6 specialist agents, and 10-step `ExecutionLifecycleOrchestrator`. |
-| **Layer 3: Evolution, Memory & Evaluation** | [`platform_core.layer3_evolution`](../../src/platform_core/layer3_evolution/README.md) | `BitemporalEpisodicMemory`, `HybridKnowledgeStore` (200K-token rule), `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, `DatasetHygienePipeline`, `PropBench9Suite`, `BenchmarkEvaluator`, and 8-step `ControlledImprovementCycle`. |
+| **Layer 1: Intelligence & Model Creation** | [`platform_core.layer1_intelligence`](../../src/platform_core/layer1_intelligence/README.md) | 4-Pool `ModelRegistry`, `LocalHardwareDetector`, `HardwareFeasibilityPlanner`, `OpenAICompatibleClient` / `MLXLocalBackend`, `AdaptiveModelRouter`, `BestOfNVerifierPruner`, `ServingEndpointConfig`, `CustomModelPipeline`, `CreationStrategyAdvisor`, `CompactTransformerSLMTrainer`, and `HereticAbliterator` / `GAINAdaptiveScheduler` / `ColdFusionModelMerger` / `ImatrixQuantizationCalibrator`. |
+| **Layer 2: Stateful Execution & Sandboxing** | [`platform_core.layer2_execution`](../../src/platform_core/layer2_execution/README.md) | `PlatformState` (`EpistemicAssessment`), `SQLiteStateCheckpointer`, `FirecrackerSandboxManager` (CoW snapshots), 6 MCP tool servers (`CodeGraph`, `BinRev`, `DefensiveCyber`, `DataAndVisual`, `VulnIntel`, `Forensics`), 6 specialist agents, 10-step `ExecutionLifecycleOrchestrator`, and `AgyLocalOrchestrator` / `AgyStdioMCPBridge` / `AgySkillDiscovery`. |
+| **Layer 3: Evolution, Memory & Evaluation** | [`platform_core.layer3_evolution`](../../src/platform_core/layer3_evolution/README.md) & [`platform_core.data_ingestion`](../../src/platform_core/data_ingestion/README.md) | `BitemporalEpisodicMemory`, `HybridKnowledgeStore` (200K-token rule), `CorpusHarvesterPipeline`, `ProjectBrainEngine`, `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, `DatasetHygienePipeline`, `PropBench9Suite`, `BenchmarkSuiteRunner`, `BenchmarkEvaluator`, and 8-step `ControlledImprovementCycle`. |
 | **Cross-Cutting: Deploy & Security Governance** | [`platform_core.deploy_security`](../../src/platform_core/deploy_security/README.md) | `SafetensorsValidator`, `LicenseComplianceAuditor`, `SignedManifestVerifier`, `CyberGymFirewall`, and `K8sAgentSandboxGenerator`. |
 
 ---

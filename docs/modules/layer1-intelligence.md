@@ -13,8 +13,9 @@
 4. [`serving.py` — SGLang/vLLM Launch Configs & Radix Prefix Cache Simulator](#4-servingpy--sglangvllm-launch-configs--radix-prefix-cache-simulator)
 5. [`training.py` — 5-Stage Post-Training, Reward Oracles & Custom Model Pipeline](#5-trainingpy--5-stage-post-training-reward-oracles--custom-model-pipeline)
 6. [`scratch_trainer.py` — Strategy Advisor, Byte-Level BPE & Compact Scratch SLM](#6-scratch_trainerpy--strategy-advisor-byte-level-bpe--compact-scratch-slm)
-7. [Testing & Verification](#7-testing--verification)
-8. [Related Documentation](#8-related-documentation)
+7. [`heretic.py` — Heretic Abliteration, GAIN Scheduling, Cold-Fusion Merge & IMatrix Calibration](#7-hereticpy--heretic-abliteration-gain-scheduling-cold-fusion-merge--imatrix-calibration)
+8. [Testing & Verification](#8-testing--verification)
+9. [Related Documentation](#9-related-documentation)
 
 ---
 
@@ -103,13 +104,28 @@
 
 ---
 
-## 7. Testing & Verification
+## 7. `heretic.py` — Heretic Abliteration, GAIN Scheduling, Cold-Fusion Merge & IMatrix Calibration
 
-Covered by `TestLayer1IntelligenceAndTraining`, `TestCustomModelPipelineAndCLI`, and `TestInferenceAndTraining` in [`tests/test_platform_core.py`](../../tests/test_platform_core.py) and [`tests/test_inference_and_training.py`](../../tests/test_inference_and_training.py), and by `TestScratchTrainerAndStrategyAdvisor` in [`tests/test_corpus_and_scratch_trainer.py`](../../tests/test_corpus_and_scratch_trainer.py).
+- **`HereticConfig` & `HereticAbliterator`**:
+  - `extract_refusal_subspace(harmful_prompts, harmless_prompts, ...)`: Builds contrastive activation difference subspaces using Modified Gram-Schmidt orthonormalization across target layer bands.
+  - `orthogonalize_matrix(weight_matrix, basis, alpha)`: Applies rank-$k$ projection orthogonalization ($W' = W - \alpha \sum_{i=1}^k (\hat{r}_i \hat{r}_i^T) W$).
+  - `abliterate_safetensors(input_path, output_path, config=None) -> HereticAbliterationReport`: Optimizes `(alpha, layer_band)` parameters under `max_kl_divergence`, applies `<Q` `header_pad` protection against pickle magic bytes, and validates outputs with `SafetensorsValidator`.
+- **`GAINAdaptiveScheduler`**:
+  - `compute_sample_weights(sample_texts, ...) -> list[GAINSampleWeight]`: Computes per-sample token Shannon entropy and structural complexity to scale learning rate and GRPO advantage multipliers within `[0.5, 1.5]`.
+- **`ColdFusionModelMerger`**:
+  - `merge_safetensors(checkpoint_paths, output_path, config=None) -> ColdFusionMergeReport`: Merges two or more F32 `.safetensors` checkpoints using `dare_ties` (Drop And REscale + TIES sign election) or `slerp` interpolation and exports a reproducible `mergekit` YAML config.
+- **`ImatrixQuantizationCalibrator`**:
+  - `calibrate_and_build_gguf_plan(safetensors_path, calibration_texts, output_dir, quant_type="Q5_K_M") -> ImatrixCalibrationReport`: Computes activation-aware importance scores and emits `llama-imatrix`, `llama-quantize`, and `mlx_lm.convert` quantization artifacts (`Q4_K_M`, `Q4_K_S`, `Q5_K_M`, `Q8_0`, `IQ4_XS`).
 
 ---
 
-## 8. Related Documentation
+## 8. Testing & Verification
+
+Covered by `TestLayer1IntelligenceAndTraining`, `TestCustomModelPipelineAndCLI`, and `TestInferenceAndTraining` in [`tests/test_platform_core.py`](../../tests/test_platform_core.py) and [`tests/test_inference_and_training.py`](../../tests/test_inference_and_training.py), by `TestScratchTrainerAndStrategyAdvisor` in [`tests/test_corpus_and_scratch_trainer.py`](../../tests/test_corpus_and_scratch_trainer.py), and by `TestHereticAndBrain` in [`tests/test_heretic_and_brain.py`](../../tests/test_heretic_and_brain.py).
+
+---
+
+## 9. Related Documentation
 
 - [5-Stage Model Post-Training Pipeline](../workflows/model-post-training-pipeline.md)
 - [Custom Model Creation & Execution Guide](../CUSTOM_MODEL_GUIDE.md)

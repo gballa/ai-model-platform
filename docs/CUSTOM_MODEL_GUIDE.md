@@ -42,7 +42,7 @@ Instead of pre-training from scratch (\$5.6M–\$50M+), `CustomModelPipeline.bui
 - **Prerequisites**: Python `>= 3.11` with `.venv` initialized (`PYTHONPATH=src .venv/bin/python`). Zero third-party packages are required.
 - **Required Configuration (`CustomModelConfig`)**:
   - `model_id`: Alphanumeric identifier matching `^[A-Za-z0-9._-]+$` (e.g., `"Acme-SecCoder-27B-v1"`).
-  - `domain`: One of `{"swe", "cyber", "binrev", "data_protocol", "architecture", "visual_ocr"}`.
+  - `domain`: One of `{"swe", "cyber", "vuln_intel", "forensics", "binrev", "data_protocol", "architecture", "visual_ocr"}`.
   - `license_id`: Commercial OSI license passing `LicenseComplianceAuditor` (`"Apache-2.0"`, `"MIT"`, `"BSD-3-Clause"`).
   - `dataset_file` *(optional)*: Path to a non-symlinked `.jsonl` or `.json` trajectory file.
   - `output_dir` *(optional)*: Directory where `<model-id>.safetensors` and `<model-id>.manifest.json` will be written atomically.
@@ -255,6 +255,13 @@ When starting from raw PDFs, technical books, or allowlisted web documentation�
      --sample-prompt "def safe_div"
    ```
    `CompactTransformerSLMTrainer` trains a UTF-8 `BytePairTokenizer` and deterministic causal Transformer (`10M`, `50M`, `125M`, `350M` `--tier` presets or fast micro defaults), pads `metadata["header_pad"]` if needed to avoid `<Q` header collisions with `\x80\x02`–`\x80\x05`, validates via `SafetensorsValidator`, and writes `<model-id>.safetensors`, `<model-id>.tokenizer.json`, and `<model-id>.manifest.json`.
+
+4. **Abliterate, Merge & Calibrate Checkpoints (`heretic-abliterate`, `cold-fusion-merge`, `brain-pipeline`)**:
+   ```bash
+   PYTHONPATH=src .venv/bin/python -m platform_core.cli brain-pipeline \
+     --output-dir ./artifacts/brain_slm --model-id heretic-brain-slm --quant-type Q5_K_M
+   ```
+   `ProjectBrainEngine.run_brain_training_pipeline()` trains domain micro SLMs on `.agents/brain/` with GAIN adaptive weights (`GAINAdaptiveScheduler`), runs KL-bounded Arbitrary-Rank Ablation (`HereticAbliterator`), merges checkpoints via DARE-TIES or SLERP (`ColdFusionModelMerger`), and emits an `ImatrixQuantizationCalibrator` GGUF/MLX plan.
 
 ---
 

@@ -11,7 +11,7 @@ Structured architectural memory, symbol ontology, domain playbooks, and bitempor
 | [`brain/README.md`](brain/README.md) | Master cognitive hub, 4-layer matrix, 8-domain routing table, 6-agent dual-gate topology, and CLI quick-reference |
 | [`brain/knowledge-graph.md`](brain/knowledge-graph.md) | Architectural knowledge graph, entity-relationship dependency chains, lifecycle state machines, and `ADR-0001`..`ADR-0009` index |
 | [`brain/domain-playbooks-and-invariants.md`](brain/domain-playbooks-and-invariants.md) | Deep-dive into the 7 architectural invariants, 8 domain playbooks, model creation recipes, and troubleshooting memory |
-| [`brain/symbol-and-contract-index.md`](brain/symbol-and-contract-index.md) | Complete symbol dictionary across 20 source files & 8 test suites, 5 SQLite WAL schemas, 22 CLI subcommands, and 18 MCP tools |
+| [`brain/symbol-and-contract-index.md`](brain/symbol-and-contract-index.md) | Complete symbol dictionary across 5 subpackages (`24` implementation modules) & `211` automated tests, 5 SQLite WAL schemas, 23 CLI subcommands, and 18 MCP stdio tools |
 | [`brain/brain-knowledge-graph.json`](brain/brain-knowledge-graph.json) | Machine-readable JSON ontology and bitemporal fact seed for `BitemporalEpisodicMemory` & `HybridKnowledgeStore` |
 | [`brain/corpus-swe-arch-and-product.md`](brain/corpus-swe-arch-and-product.md) | Curated SWE, Software Architecture & Product Discovery corpus (`MOD-SWE-01`, `MOD-SWE-02`, `MOD-PROD-01`, `MOD-PROD-02`) |
 | [`brain/corpus-android-security-masvs.md`](brain/corpus-android-security-masvs.md) | Curated Android 12–15+ Security Engineering & OWASP MASVS v2 / MASTG corpus (`MOD-AND-01`..`MOD-AND-04`) |

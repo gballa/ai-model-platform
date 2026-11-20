@@ -6,9 +6,10 @@
 
 `platform_core.layer3_evolution` manages the long-term evolution and evaluation of the platform:
 - **Bitemporal Episodic Memory & Hybrid Knowledge Store (`memory.py`)**: Thread-safe WAL SQLite persistence for GAM Event Progression Graph & Graphiti bitemporal fact edges (`valid_from`, `valid_to`, `invalid_at`), FTS5 BM25 + vector cosine RRF search via `HybridKnowledgeStore` (preserving the `< 200_000` token `DIRECT_PREFIX_CACHE` rule), `DeterministicHashEmbedder`, `InferenceBackendEmbedder`, and `ProjectContextManager`.
-- **Proprietary Data Factories & Decontamination (`data_factory.py`)**: `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, and 4-gate `DatasetHygienePipeline`.
+- **Project Brain Engine (`brain_engine.py`)**: `ProjectBrainEngine` synchronizes [`.agents/brain/`](../../../.agents/brain/README.md) (`brain-knowledge-graph.json` and curated corpus docs) into `HybridKnowledgeStore` and `BitemporalEpisodicMemory` (`sync_brain()`), executes combined RAG/graph/bitemporal queries (`query_brain()`), and orchestrates the end-to-end Brain -> GAIN -> Heretic -> Cold-Fusion -> IMatrix SLM pipeline (`run_brain_training_pipeline()`).
+- **Proprietary Data Factories & Decontamination ([`data_ingestion/data_factory.py`](../data_ingestion/README.md))**: Re-exports `TrainingTrajectoryRecord`, `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, and 4-gate `DatasetHygienePipeline` from `platform_core.data_ingestion`.
 - **Corpus Harvesting, Sanitization & Teacher Distillation (`corpus_harvester.py`)**: `CorpusHarvesterPipeline`, `PDFBookExtractor` (`.pdf`, `.md`, `.txt`, `.rst`), `RateLimitedWebHarvester` (`CyberGymFirewall` egress gate, `time.monotonic()` pacing, `RateLimitError`), `PromptInjectionSanitizer`, `DomainChunker`, and `TeacherDistiller` (fail-closed `DatasetHygienePipeline` Gate 3 unless verified or explicitly opted into unexecuted text synthesis).
-- **Statistical & Executable Benchmark Evaluation (`evaluation.py`)**: `PropBench9Suite` (9 internal benchmarks), `BenchmarkEvaluator` (5-run 95% CI, $\text{pass}@1$, $\text{pass}^k$, and Canary Promotion Gate), and `BenchmarkSuiteRunner` (5 default executable suites: `coding`, `reasoning`, `cyber_vuln`, `forensics`, `hallucination_resistance`, plus standalone `binary_analysis`, `exploit_mechanics`, `network_protocols`, and `roe_scope` sub-suites — 15 cases total).
+- **Statistical & Executable Benchmark Evaluation (`evaluation.py`)**: `PropBench9Suite` (9 internal benchmarks), `BenchmarkEvaluator` (5-run 95% CI, $\text{pass}@1$, $\text{pass}^k$, and Canary Promotion Gate), and `BenchmarkSuiteRunner` (5 default executable suites: `coding`, `reasoning`, `cyber_vuln`, `forensics`, `hallucination_resistance`, plus standalone `binary_analysis`, `exploit_mechanics`, `network_protocols`, and `roe_scope` sub-suites — 15 cases total across default run).
 - **8-Step Controlled Improvement Cycle (`observability.py`)**: `ControlledImprovementCycle` for failure clustering, root-cause attribution, execution-verified trajectory curation, and canary gating.
 
 ---
@@ -18,13 +19,15 @@
 ```mermaid
 flowchart LR
     Memory["memory.py\nBitemporalEpisodicMemory,\nHybridKnowledgeStore (SQLite/FTS5/RRF),\nProjectContextManager"]
-    Factory["data_factory.py\nSWEFuse, SecBench, DecompileBench,\nDatasetHygienePipeline"]
+    Factory["../data_ingestion/data_factory.py\nSWEFuse, SecBench, DecompileBench,\nDatasetHygienePipeline"]
     Harvester["corpus_harvester.py\nCorpusHarvesterPipeline, PDFBookExtractor,\nRateLimitedWebHarvester, TeacherDistiller"]
+    Brain["brain_engine.py\nProjectBrainEngine, BrainSyncReport,\nBrainQueryResult, BrainPipelineReport"]
     Eval["evaluation.py\nPropBench9Suite, BenchmarkEvaluator,\nBenchmarkSuiteRunner"]
     Obs["observability.py\nControlledImprovementCycle"]
 
     Harvester --> Memory
     Harvester --> Factory
+    Brain --> Memory
     Obs --> Eval
 ```
 
@@ -35,7 +38,8 @@ flowchart LR
 | File | Primary Classes | Key Methods |
 | :--- | :--- | :--- |
 | [`memory.py`](memory.py) | `ProgressionEvent`, `BitemporalFactEdge`, `BitemporalEpisodicMemory`, `KnowledgeDocumentChunk`, `HybridKnowledgeStore`, `DeterministicHashEmbedder`, `InferenceBackendEmbedder`, `ProjectContextManager` | `append_event()`, `upsert_architectural_fact()`, `query_active_facts()`, `query_facts_as_of()`, `ingest_document()`, `ingest_directory()`, `retrieve()`, `record_project_summary()` |
-| [`data_factory.py`](data_factory.py) | `TrainingTrajectoryRecord`, `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, `DatasetHygienePipeline` | `build_pair()`, `build_record()`, `filter_records()` |
+| [`brain_engine.py`](brain_engine.py) | `BrainSyncReport`, `BrainQueryResult`, `BrainPipelineReport`, `ProjectBrainEngine` | `sync_brain()`, `query_brain()`, `run_brain_training_pipeline()`, `close()` |
+| [`../data_ingestion/data_factory.py`](../data_ingestion/data_factory.py) | `TrainingTrajectoryRecord`, `SWEFuseFactory`, `SecBenchFactory`, `DecompileBenchFactory`, `DatasetHygienePipeline` | `build_pair()`, `build_record()`, `filter_records()` |
 | [`corpus_harvester.py`](corpus_harvester.py) | `RateLimitError`, `HarvestedDocument`, `HarvestReport`, `PromptInjectionSanitizer`, `DomainChunker`, `PDFBookExtractor`, `RateLimitedWebHarvester`, `TeacherDistiller`, `CorpusHarvesterPipeline` | `sanitize()`, `chunk_text()`, `extract_book()`, `extract_directory()`, `fetch_url()`, `synthesize_trajectories()`, `export_distilled_jsonl()`, `run_harvest()` |
 | [`evaluation.py`](evaluation.py) | `MultiRunBenchmarkResult`, `BenchmarkEvaluator`, `PropBenchSpec`, `PropBench9Suite`, `BenchmarkCaseResult`, `BenchmarkSuiteRunner` | `evaluate_multi_run()`, `compute_pass_hat_k()`, `evaluate_canary_promotion()`, `all_specs()`, `run_all_suites()` |
 | [`observability.py`](observability.py) | `TraceOutcome`, `FailureRootCauseBucket`, `ProductionTraceRecord`, `ControlledImprovementCycle` | `record_trace()`, `execute_cycle()` |
@@ -85,7 +89,7 @@ print("Mode:", store.retrieve("Ed25519")["retrieval_mode"])  # DIRECT_PREFIX_CAC
 ## 8. Testing and Troubleshooting
 
 ```bash
-PYTHONPATH=src .venv/bin/python -W error -m unittest tests.test_platform_core.TestLayer3EvolutionMemoryAndEvaluation -v
+PYTHONPATH=src .venv/bin/python -W error -m unittest tests.test_platform_core.TestLayer3EvolutionMemoryAndCLI tests.test_heretic_and_brain -v
 ```
 
 ---

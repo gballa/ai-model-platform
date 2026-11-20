@@ -82,6 +82,15 @@ The `heretic-llm` and `annihilation-llm` model profile aliases both resolve to `
 | `SafetensorsValidator` | `MAX_HEADER_BYTES` | `100 * 1024 * 1024` (100 MiB) | Maximum allowed JSON header size in `.safetensors` files. |
 | `SQLiteStateCheckpointer` & `CodeGraphMCPServer` | SQLite Pragmas | `busy_timeout = 30000`, `journal_mode = WAL` (file DBs), `check_same_thread = False` | Multi-threaded concurrency safety. |
 
+### 3.5 Local Model Creation, Heretic & Brain Configuration (`scratch_trainer.py`, `heretic.py`)
+
+| Class / Constant | Field / Value | Description |
+| :--- | :--- | :--- |
+| `ScratchSLMConfig` | `vocab_size=512`, `d_model=64`, `n_layers=2`, `n_heads=4`, `d_ff=128`, `max_seq_len=128`, `execution_backend="auto"` | Micro defaults (`preset_tier()` supports `"10M"`, `"50M"`, `"125M"`, `"350M"`). |
+| `HereticConfig` | `rank=2`, `max_kl_divergence=0.05`, `layer_band=(0.40, 0.70)`, `n_trials=16` | KL-bounded Arbitrary-Rank Ablation parameters (`rank >= 1`, `0 < max_kl <= 5.0`). |
+| `ColdFusionMergeConfig` | `method="dare_ties"`, `drop_rate=0.5`, `density=0.6`, `interpolation_t=0.5` | Multi-model merge parameters (`method in {"dare_ties", "slerp"}`). |
+| `RateLimitedWebHarvester` | `MAX_RESPONSE_BYTES = 5 * 1024 * 1024`, `MAX_JSONRPC_LINE_BYTES = 1024 * 1024` | Streaming response cap (`5 MiB`) and stdio JSON-RPC line bound (`1 MiB` in `AgyStdioMCPBridge`). |
+
 ---
 
 ## 4. Step-by-Step Instructions
