@@ -32,7 +32,7 @@ When starting any task in this workspace:
 5. **Ingest Structured Graph Facts**: Load [brain-knowledge-graph.json](brain-knowledge-graph.json) into `BitemporalEpisodicMemory` or `HybridKnowledgeStore` for programmatic RAG and bitemporal point-in-time queries.
 
 > [!IMPORTANT]
-> All Markdown files inside `.agents/brain/` enforce workspace link portability: every link uses a repository-relative path (never machine-local home-directory paths or `file:` URIs) and maps directly to verified source files in [`src/platform_core/`](../../src/platform_core/).
+> All Markdown files inside `.agents/brain/` enforce workspace link portability: every link uses a repository-relative path (never machine-local home-directory paths or local filesystem URIs) and maps directly to verified source files in [`src/platform_core/`](../../src/platform_core/).
 
 ---
 
@@ -45,6 +45,11 @@ When starting any task in this workspace:
 | [`domain-playbooks-and-invariants.md`](domain-playbooks-and-invariants.md) | **Operational Memory & Guardrails**: Deep-dive into the 7 workspace invariants, 8 domain execution recipes, security gates, and anti-pattern troubleshooting. | `dev-worker`, `security-auditor`, `code-reviewer`, `test-engineer` |
 | [`symbol-and-contract-index.md`](symbol-and-contract-index.md) | **Symbol, Schema & Contract Atlas**: File-by-file class/function dictionary, 5 SQLite WAL schemas, 22 CLI subcommands, and 18 MCP stdio tools. | Coding agents performing surgical edits or writing unit tests |
 | [`brain-knowledge-graph.json`](brain-knowledge-graph.json) | **Machine-Readable Ontology & Bitemporal Fact Seed**: JSON graph of nodes, directed edges, bitemporal architectural facts (`subject`, `predicate`, `object_val`), and invariant checks. | `ProjectBrainEngine`, `BitemporalEpisodicMemory`, `HybridKnowledgeStore`, interactive visualizers |
+| [`corpus-swe-arch-and-product.md`](corpus-swe-arch-and-product.md) | **SWE, Architecture & Product Discovery Corpus (`MOD-SWE-01`..`02`, `MOD-PROD-01`..`02`)**: Distributed resilience (Circuit Breakers, Full Jitter, Little's Law), SQLite WAL Transactional Outbox, Testing Pyramid & CI/CD supply-chain gates, and RFC 2119 hypothesis-driven product specs. | `SoftwareEngineeringAgent`, `LeadOrchestratorAgent`, `ProjectBrainEngine`, `CustomModelPipeline` |
+| [`corpus-android-security-masvs.md`](corpus-android-security-masvs.md) | **Android Security & OWASP MASVS/MASTG Corpus (`MOD-AND-01`..`04`)**: Android 12–15+ IPC/`PendingIntent.FLAG_IMMUTABLE`/App Links, StrongBox KeyMint `AES-256-GCM`, WebView & SPKI pinning + Play Integrity, and defensive spyware/accessibility triage. | `DefensiveCyberAgent`, `ForensicsMCPServer`, `ProjectBrainEngine`, `CustomModelPipeline` |
+| [`corpus-ios-security-masvs.md`](corpus-ios-security-masvs.md) | **iOS Security & OWASP MASVS/MASTG Corpus (`MOD-IOS-01`..`04`)**: iOS 14–18+ Universal Links & `PrivacyInfo.xcprivacy`, Secure Enclave ECIES & Keychain Data Protection, `WKWebView`/ATS/SPKI pinning, and defensive `.mobileconfig`/`Shutdown.log` forensic triage. | `DefensiveCyberAgent`, `ForensicsMCPServer`, `ProjectBrainEngine`, `CustomModelPipeline` |
+| [`corpus-obfuscation-and-multimodal.md`](corpus-obfuscation-and-multimodal.md) | **De-Obfuscation & Multimodal Visual/Audio Corpus (`MOD-OBF-01`..`02`, `MOD-MM-01`..`02`)**: Finite-sample Shannon entropy ($\min(8.0, \log_2 N)$), AST/SSA de-obfuscation & DWARF struct IoU, C4/STRIDE visual diagrams & bounded PDF decompression, and RIFF/WAVE PCM signal framing. | `ReverseEngineeringAgent`, `MultimodalDataAgent`, `DataAndVisualMCPServer`, `ProjectBrainEngine` |
+| [`multimodal-training-corpus.jsonl`](multimodal-training-corpus.jsonl) | **Execution-Verified Multimodal Training Dataset (12 JSONL Records)**: Single-line Apache-2.0 training trajectories (`MOD-SWE-01`..`MOD-OBF-01`) with `prompt`, `verified_response`, `bad_vs_good_pair`, `multimodal_specs`, and `execution_verified: true`. | `CustomModelPipeline`, `DatasetHygienePipeline`, `CompactTransformerSLMTrainer`, `ProjectBrainEngine` |
 
 ---
 
